@@ -5,6 +5,8 @@ using FSM;
 
 public class GoapAgent : MonoBehaviour
 {
+    public GoapPlanner myPlanner;
+
     public List<GoapState> CurrentWorldState = new List<GoapState>();
 
     public List<GoapGoal> Goals = new List<GoapGoal>();
@@ -22,7 +24,7 @@ public class GoapAgent : MonoBehaviour
     public void GetNewPlan()
     {
         ClearPlan();
-        ActionPlan = GoapPlanner.GP.GoapPlan(this);
+        ActionPlan = myPlanner.GoapPlan(this);
     }
 
     void ClearPlan()

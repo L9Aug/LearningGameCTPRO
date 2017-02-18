@@ -2,18 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoapPlanner : MonoBehaviour
+public class GoapPlanner
 {
-    public static GoapPlanner GP;
-
     public List<GoapState> CurrentWorldState;
     public List<GoapAction> AvailableActions = new List<GoapAction>();
-
-    void Awake()
-    {
-        GP = this;
-        // setup Available Actions.
-    }
 
     public Queue<GoapAction> GoapPlan(GoapAgent agent)
     {

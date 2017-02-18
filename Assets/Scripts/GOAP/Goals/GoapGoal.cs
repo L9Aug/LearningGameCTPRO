@@ -2,26 +2,35 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+using Utility;
+
 [System.Serializable]
-public class GoapGoal
+public abstract class GoapGoal
 {
     public string GoalName;
     public List<GoapState> RequiredWorldState = new List<GoapState>();
 
-    GoapGoal()
+    public UtilityAction myUtilityAction;
+
+    public abstract void SetupUtilityAction();
+
+    public GoapGoal()
     {
         GoalName = "";
+        SetupUtilityAction();
     }
 
-    GoapGoal(string name)
+    public GoapGoal(string name)
     {
         GoalName = name;
+        SetupUtilityAction();
     }
 
-    GoapGoal(string name, List<GoapState> requiredWorldState)
+    public GoapGoal(string name, List<GoapState> requiredWorldState)
     {
         GoalName = name;
         RequiredWorldState = requiredWorldState;
+        SetupUtilityAction();
     }
 
 }
