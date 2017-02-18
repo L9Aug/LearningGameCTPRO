@@ -2,42 +2,48 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UtilityEngine : MonoBehaviour
+[System.Serializable]
+public class UtilityEngine
 {
     public List<UtilityAction> Actions = new List<UtilityAction>();
     
     object RunUtilityEngine()
     {
-        UtilityAction highestScore = null;
-
-        foreach(UtilityAction action in Actions)
+        if (Actions != null)
         {
-            float CompensationValue = (action.Considerations.Count > 0) ? 1 - (1 / action.Considerations.Count) : 0;
-            float ActionScore = 1;
+            UtilityAction highestScore = null;
 
-            foreach(UtilityConsideration consideration in action.Considerations)
+            foreach (UtilityAction action in Actions)
             {
-                float tempScore = consideration.GetScore();
-                float ModificationValue = (1 - tempScore) * CompensationValue;
-                tempScore += tempScore + ModificationValue;
-                ActionScore *= tempScore;
-            }
+                float CompensationValue = (action.Considerations.Count > 0) ? 1 - (1 / action.Considerations.Count) : 0;
+                float ActionScore = 1;
 
-            action.Score = ActionScore;
+                foreach (UtilityConsideration consideration in action.Considerations)
+                {
+                    float tempScore = consideration.GetScore();
+                    float ModificationValue = (1 - tempScore) * CompensationValue;
+                    tempScore += tempScore + ModificationValue;
+                    ActionScore *= tempScore;
+                }
 
-            if (highestScore != null)
-            {
-                if (highestScore.Score < ActionScore)
+                action.Score = ActionScore;
+
+                if (highestScore != null)
+                {
+                    if (highestScore.Score < ActionScore)
+                    {
+                        highestScore = action;
+                    }
+                }
+                else
                 {
                     highestScore = action;
                 }
             }
-            else
-            {
-                highestScore = action;
-            }
-        }
 
-        return (highestScore != null) ? highestScore.ObjectReference : Actions[0].ObjectReference;
+            return (highestScore != null) ? highestScore.ObjectReference : Actions[0].ObjectReference;
+        }
+        Debug.LogWarning("No Actions");
+        return null;
     }
 }
