@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using FSM;
 using Utility;
+using GOAP;
 
 public class GoapAI : MonoBehaviour, IGoap
 {

@@ -2,182 +2,187 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GoapPlanner
+namespace GOAP
 {
-    public List<GoapState> CurrentWorldState;
-    public List<GoapAction> AvailableActions = new List<GoapAction>();
 
-    public Queue<GoapAction> GoapPlan(GoapAgent agent)
+    public class GoapPlanner
     {
-        CurrentWorldState = agent.CurrentWorldState;
+        public List<GoapState> CurrentWorldState;
+        public List<GoapAction> AvailableActions = new List<GoapAction>();
 
-        //get an action tree for the current goal
-        List<GoapNode> GoalTrees = new List<GoapNode>();
-        GoalTrees.AddRange(GetGoalTree(agent.CurrentGoal));
-
-        // If there is at least on path return the fastest path, otherwise return that no path was found.
-        if(GoalTrees.Count > 0)
+        public Queue<GoapAction> GoapPlan(GoapAgent agent)
         {
-            // search all trees for the fastest path.
-            GoalTrees.Sort((x, y) => x.CumulativeCost.CompareTo(y.CumulativeCost));
-            return ProccessNodeListIntoQueue(GoalTrees[0]);
-        }
-        else
-        {
-            // No path found...
-            Debug.Log("No GOAP path found for " + agent.gameObject.name + " Requested Goal: " + agent.CurrentGoal);
-        }
+            CurrentWorldState = agent.CurrentWorldState;
 
-        return new Queue<GoapAction>();
-    }
+            //get an action tree for the current goal
+            List<GoapNode> GoalTrees = new List<GoapNode>();
+            GoalTrees.AddRange(GetGoalTree(agent.CurrentGoal));
 
-    // takes the node path that is passed in and turns it into a queue of actions.
-    Queue<GoapAction> ProccessNodeListIntoQueue(GoapNode StartNode)
-    {
-        Queue<GoapAction> ReturnQueue = new Queue<GoapAction>();
-        GoapNode tempNode = StartNode;
-        while(tempNode.Parent != null)
-        {
-            ReturnQueue.Enqueue(tempNode.Action);
-            tempNode = tempNode.Parent;
-        }
-        return ReturnQueue;
-    }
-
-    /// <summary>
-    /// Gets the possible action branches that arrive at the goals required state.
-    /// </summary>
-    /// <param name="goal"></param>
-    /// <returns></returns>
-    List<GoapNode> GetGoalTree(GoapGoal goal)
-    {
-        List<GoapNode> EndNodes = new List<GoapNode>();
-        GoapNode RootNode = new GoapNode(null, 0, goal.RequiredWorldState, null);
-
-        // check if the world state already matches this goal.
-        if (TestGoalStateAgainstWorldState(goal)) return new List<GoapNode>();
-
-        List<GoapAction> ImmedeateActions = GetGoalActions(goal);
-        foreach(GoapAction action in ImmedeateActions)
-        {
-            // test each immediate action's pre-requisite states against the world states.
-            if (TestActionAgainstWorldState(action))
+            // If there is at least on path return the fastest path, otherwise return that no path was found.
+            if (GoalTrees.Count > 0)
             {
-                EndNodes.Add(new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action));
+                // search all trees for the fastest path.
+                GoalTrees.Sort((x, y) => x.CumulativeCost.CompareTo(y.CumulativeCost));
+                return ProccessNodeListIntoQueue(GoalTrees[0]);
             }
             else
             {
-                // recurse through this action's state requirements until it either matches the world state or has no prerequisites.
-                EndNodes.AddRange(GetActionTree(action, new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action)));
+                // No path found...
+                Debug.Log("No GOAP path found for " + agent.gameObject.name + " Requested Goal: " + agent.CurrentGoal);
             }
+
+            return new Queue<GoapAction>();
         }
 
-        return EndNodes;
-    }
-
-    List<GoapNode> GetActionTree(GoapAction action, GoapNode RootNode)
-    {
-        List<GoapNode> returnList = new List<GoapNode>();
-        List<GoapAction> ChildActions = PreCursorActions(action);
-
-        // if this action has pre-requisite requirements that are not fulfilled, then find the actions that satisfy the required worls states.
-        if (ChildActions.Count > 0)
+        // takes the node path that is passed in and turns it into a queue of actions.
+        Queue<GoapAction> ProccessNodeListIntoQueue(GoapNode StartNode)
         {
-            foreach(GoapAction ChildAction in ChildActions)
+            Queue<GoapAction> ReturnQueue = new Queue<GoapAction>();
+            GoapNode tempNode = StartNode;
+            while (tempNode.Parent != null)
             {
-                returnList.AddRange(GetActionTree(ChildAction, new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action)));
+                ReturnQueue.Enqueue(tempNode.Action);
+                tempNode = tempNode.Parent;
             }
+            return ReturnQueue;
         }
-        else
-        {
-            // otherwise if the action has no pre-requisite states return this action.
-            if(action.RequiredStates.Count == 0)
-            {
-                returnList.Add(new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action));
-            }
-        }
-        return returnList;
-    }
 
-    List<GoapAction> PreCursorActions(GoapAction newAction)
-    {
-        List<GoapAction> ReturnActions = new List<GoapAction>();
-        // loop through this actions required states
-        foreach (GoapState state in newAction.RequiredStates)
+        /// <summary>
+        /// Gets the possible action branches that arrive at the goals required state.
+        /// </summary>
+        /// <param name="goal"></param>
+        /// <returns></returns>
+        List<GoapNode> GetGoalTree(GoapGoal goal)
         {
-            // loop through the actions available.
-            foreach (GoapAction action in AvailableActions)
+            List<GoapNode> EndNodes = new List<GoapNode>();
+            GoapNode RootNode = new GoapNode(null, 0, goal.RequiredWorldState, null);
+
+            // check if the world state already matches this goal.
+            if (TestGoalStateAgainstWorldState(goal)) return new List<GoapNode>();
+
+            List<GoapAction> ImmedeateActions = GetGoalActions(goal);
+            foreach (GoapAction action in ImmedeateActions)
             {
-                // if one of the actions that is available satisfies one or many of our actions required states then add it to be returned.
-                if (action.SatisfiesStates.Contains(state))
+                // test each immediate action's pre-requisite states against the world states.
+                if (TestActionAgainstWorldState(action))
                 {
-                    ReturnActions.Add(action);
+                    EndNodes.Add(new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action));
+                }
+                else
+                {
+                    // recurse through this action's state requirements until it either matches the world state or has no prerequisites.
+                    EndNodes.AddRange(GetActionTree(action, new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action)));
                 }
             }
-        }
-        return ReturnActions;
-    }
 
-    // test to see if the actions required states match our current world states.
-    bool TestActionAgainstWorldState(GoapAction action)
-    {
-        if(action.RequiredStates.Count > 0)
+            return EndNodes;
+        }
+
+        List<GoapNode> GetActionTree(GoapAction action, GoapNode RootNode)
         {
-            foreach(GoapState actionState in action.RequiredStates)
+            List<GoapNode> returnList = new List<GoapNode>();
+            List<GoapAction> ChildActions = PreCursorActions(action);
+
+            // if this action has pre-requisite requirements that are not fulfilled, then find the actions that satisfy the required worls states.
+            if (ChildActions.Count > 0)
+            {
+                foreach (GoapAction ChildAction in ChildActions)
+                {
+                    returnList.AddRange(GetActionTree(ChildAction, new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action)));
+                }
+            }
+            else
+            {
+                // otherwise if the action has no pre-requisite states return this action.
+                if (action.RequiredStates.Count == 0)
+                {
+                    returnList.Add(new GoapNode(RootNode, RootNode.CumulativeCost + action.Cost, action.SatisfiesStates, action));
+                }
+            }
+            return returnList;
+        }
+
+        List<GoapAction> PreCursorActions(GoapAction newAction)
+        {
+            List<GoapAction> ReturnActions = new List<GoapAction>();
+            // loop through this actions required states
+            foreach (GoapState state in newAction.RequiredStates)
+            {
+                // loop through the actions available.
+                foreach (GoapAction action in AvailableActions)
+                {
+                    // if one of the actions that is available satisfies one or many of our actions required states then add it to be returned.
+                    if (action.SatisfiesStates.Contains(state))
+                    {
+                        ReturnActions.Add(action);
+                    }
+                }
+            }
+            return ReturnActions;
+        }
+
+        // test to see if the actions required states match our current world states.
+        bool TestActionAgainstWorldState(GoapAction action)
+        {
+            if (action.RequiredStates.Count > 0)
+            {
+                foreach (GoapState actionState in action.RequiredStates)
+                {
+                    bool currentStateCheck = false;
+                    foreach (GoapState worldState in CurrentWorldState)
+                    {
+                        if (GoapState.Compare(actionState, worldState))
+                        {
+                            currentStateCheck = true;
+                        }
+                    }
+                    if (!currentStateCheck) return false;
+                }
+            }
+            return true;
+        }
+
+        // Returns a list of actions (from the available actions) that satisfy one or all of our goals required states.
+        List<GoapAction> GetGoalActions(GoapGoal goal)
+        {
+            List<GoapAction> ReturnActions = new List<GoapAction>();
+            foreach (GoapState state in goal.RequiredWorldState)
+            {
+                foreach (GoapAction action in AvailableActions)
+                {
+                    if (action.SatisfiesStates.Contains(state))
+                    {
+                        ReturnActions.Add(action);
+                    }
+                }
+            }
+            return ReturnActions;
+        }
+
+        // test to see if our current world state matches that of our goals required states.
+        bool TestGoalStateAgainstWorldState(GoapGoal goal)
+        {
+            bool GoalStatesMatch = true;
+            foreach (GoapState goalState in goal.RequiredWorldState)
             {
                 bool currentStateCheck = false;
-                foreach(GoapState worldState in CurrentWorldState)
+                foreach (GoapState worldState in CurrentWorldState)
                 {
-                    if(GoapState.Compare(actionState, worldState))
+                    if (GoapState.Compare(worldState, goalState))
                     {
                         currentStateCheck = true;
                     }
                 }
-                if (!currentStateCheck) return false;
-            }
-        }
-        return true;
-    }
 
-    // Returns a list of actions (from the available actions) that satisfy one or all of our goals required states.
-    List<GoapAction> GetGoalActions(GoapGoal goal)
-    {
-        List<GoapAction> ReturnActions = new List<GoapAction>();
-        foreach(GoapState state in goal.RequiredWorldState)
-        {
-            foreach(GoapAction action in AvailableActions)
-            {
-                if (action.SatisfiesStates.Contains(state))
+                if (!currentStateCheck)
                 {
-                    ReturnActions.Add(action);
+                    GoalStatesMatch = false;
+                    break;
                 }
             }
+            return GoalStatesMatch;
         }
-        return ReturnActions;
-    }
 
-    // test to see if our current world state matches that of our goals required states.
-    bool TestGoalStateAgainstWorldState(GoapGoal goal)
-    {
-        bool GoalStatesMatch = true;
-        foreach (GoapState goalState in goal.RequiredWorldState)
-        {
-            bool currentStateCheck = false;
-            foreach (GoapState worldState in CurrentWorldState)
-            {
-                if (GoapState.Compare(worldState, goalState))
-                {
-                    currentStateCheck = true;
-                }
-            }
-
-            if (!currentStateCheck)
-            {
-                GoalStatesMatch = false;
-                break;
-            }
-        }
-        return GoalStatesMatch;
     }
 
 }

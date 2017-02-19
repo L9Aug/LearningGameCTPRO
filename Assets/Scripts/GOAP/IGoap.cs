@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IGoap  
+namespace GOAP
 {
+
+    public interface IGoap
+    {
+
+    }
 
 }
