@@ -16,6 +16,10 @@ namespace GOAP
 
         public float Cost = 1;
 
+        protected abstract void Awake();
+
+        public abstract bool CanActionRun();
+
         /// <summary>
         /// Resets the parameters of this action.
         /// </summary>

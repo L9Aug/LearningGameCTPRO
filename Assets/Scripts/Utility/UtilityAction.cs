@@ -13,6 +13,18 @@ namespace Utility
         public float Score;
         public T ObjectReference;
 
+        public UtilityAction()
+        {
+            Weight = 1;
+        }
+
+        public UtilityAction(float weight, T objectRef, params UtilityConsideration[] considerations)
+        {
+            Weight = weight;
+            ObjectReference = objectRef;
+            Considerations.AddRange(considerations);
+        }
+
     }
 
 }

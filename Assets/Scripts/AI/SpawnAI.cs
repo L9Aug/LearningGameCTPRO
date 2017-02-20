@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using GOAP;
 
 public class SpawnAI : MonoBehaviour {
 
@@ -8,23 +10,24 @@ public class SpawnAI : MonoBehaviour {
 
     public GameObject AIPrefab;
 
+    public List<GoapGoal> Goals = new List<GoapGoal>();
+
 	// Use this for initialization
 	void Start ()
     {
-        spawnAI();
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {	    
+        // add initial goals.
+        // will most likely change after neural net is in place.
+        Goals.Add(new IdleGoal());
 
+        spawnAI();
 	}
 
     void spawnAI()
     {
         for(int i = 0; i < NumAiToSpawn; ++i)
         {
-            Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
+            GameObject nAI = Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
+            nAI.GetComponent<GoapAgent>().Goals.AddRange(Goals);
         }
         Debug.Log("Ai Spawned: " + NumAiToSpawn);
     }

@@ -10,6 +10,18 @@ public class GoapState
     // The status of the state.
     public object Status;
 
+    public GoapState()
+    {
+        Name = "";
+        Status = null;
+    }
+
+    public GoapState(string name, object status)
+    {
+        Name = name;
+        Status = status;
+    }
+
     public bool Compare(GoapState target)
     {
         return (Name == target.Name && Status == target.Status);

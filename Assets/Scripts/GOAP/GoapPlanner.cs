@@ -18,7 +18,7 @@ namespace GOAP
             List<GoapNode> GoalTrees = new List<GoapNode>();
             GoalTrees.AddRange(GetGoalTree(agent.CurrentGoal));
 
-            // If there is at least on path return the fastest path, otherwise return that no path was found.
+            // If there is at least one path return the fastest path, otherwise return that no path was found.
             if (GoalTrees.Count > 0)
             {
                 // search all trees for the fastest path.
@@ -29,9 +29,8 @@ namespace GOAP
             {
                 // No path found...
                 Debug.Log("No GOAP path found for " + agent.gameObject.name + " Requested Goal: " + agent.CurrentGoal);
+                return null;
             }
-
-            return new Queue<GoapAction>();
         }
 
         // takes the node path that is passed in and turns it into a queue of actions.
@@ -150,7 +149,7 @@ namespace GOAP
             {
                 foreach (GoapAction action in AvailableActions)
                 {
-                    if (action.SatisfiesStates.Contains(state))
+                    if (action.SatisfiesStates.Contains(state) && action.CanActionRun())
                     {
                         ReturnActions.Add(action);
                     }

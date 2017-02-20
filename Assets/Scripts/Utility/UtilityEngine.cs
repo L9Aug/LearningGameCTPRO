@@ -9,12 +9,14 @@ namespace Utility
     {
         public List<UtilityAction<T>> Actions = new List<UtilityAction<T>>();
 
-        public T RunUtilityEngine()
+        public List<T> RunUtilityEngine()
         {
+            List<UtilityAction<T>> SortedActions = new List<UtilityAction<T>>();
+
             // Only run if we have actions
-            if (Actions != null)
+            if (Actions.Count > 0)
             {
-                UtilityAction<T> highestScore = null;
+                //UtilityAction<T> highestScore = null;
 
                 // Loop through every action that we have.
                 foreach (UtilityAction<T> action in Actions)
@@ -45,30 +47,36 @@ namespace Utility
                     {
                         // If the action doesn't have considerations set it's score to 0
                         ActionScore = 0;
-                    }                    
+                    }
 
                     action.Score = ActionScore;
-
-                    // Test to see if this action has the highest score of all actions so far.
-                    if (highestScore != null)
-                    {
-                        if (highestScore.Score < ActionScore)
-                        {
-                            highestScore = action;
-                        }
-                    }
-                    else
-                    {
-                        highestScore = action;
-                    }
+                    SortedActions.Add(action);
                 }
 
-                // Return the object linked with the action with the highest score.
-                return (highestScore != null) ? highestScore.ObjectReference : Actions[0].ObjectReference;
+                // sort the list so that the highest score is at element 0
+                // multiplied by 100 as scores are in the range 0-1 before weighting values.
+                SortedActions.Sort((x, y) => (int)((x.Score - y.Score) * 100f));
+
             }
-            Debug.LogWarning("No Actions");
-            return default(T);
+            else
+            {
+                Debug.LogWarning("No Actions");
+            }
+
+            //return SortedActions;
+            return ConvertFromActionList(SortedActions);
         }
+
+        List<T> ConvertFromActionList(List<UtilityAction<T>> list)
+        {
+            List<T> retList = new List<T>();
+            for(int i = 0; i < list.Count; ++i)
+            {
+                retList.Add(list[i].ObjectReference);
+            }
+            return retList;
+        }
+
     }
 
 }

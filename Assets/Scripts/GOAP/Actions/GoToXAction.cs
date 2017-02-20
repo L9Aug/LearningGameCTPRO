@@ -6,17 +6,21 @@ using UnityEngine.AI;
 using GOAP;
 
 
-public class GoToXAction : GoapAction {
+public class GoToXAction : GoapAction
+{
 
-    NavMeshAgent agent;
+    protected NavMeshAgent agent;
+    protected Vector3 TargetDest;
 
     public float GetInRange = 0;
 
-    Vector3 TargetDest;
+    protected override void Awake() { }
 
-    public override void Reset()
+    public override void Reset() { }
+
+    public override bool CanActionRun()
     {
-
+        return true;
     }
 
     public override void BeginAction()

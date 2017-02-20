@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 using Utility;
 
 [System.Serializable]
@@ -13,6 +12,8 @@ public abstract class GoapGoal
     public UtilityAction<GoapGoal> myUtilityAction;
 
     public abstract void SetupUtilityAction();
+
+    public abstract void AddWorldStates(ref List<GoapState> CWS);
 
     public GoapGoal()
     {

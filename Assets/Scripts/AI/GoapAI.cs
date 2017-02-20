@@ -16,14 +16,14 @@ public class GoapAI : MonoBehaviour, IGoap
         myAgent = GetComponent<GoapAgent>();
     }
 
+    void Update()
+    {
+        ProgressGoap();
+    }
+
     void ProgressGoap()
     {
-        
+        myAgent.RunPlan();
     }
-
-    void SetupStateMachine()
-    {
-
-    }
-        
+            
 }

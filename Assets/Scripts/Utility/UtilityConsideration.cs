@@ -32,6 +32,26 @@ namespace Utility
         public delegate float InputFunction();
         public InputFunction GetInput;
 
+        public UtilityConsideration()
+        {
+            CurveType = CurveTypes.Linear;
+            m = d = p = 1;
+            k = c = 0;
+            Bookends = new Vector2(0, 1);
+        }
+
+        public UtilityConsideration(CurveTypes curve, Vector2 bookends, InputFunction inputFunc, float M, float D, float K, float P, float C)
+        {
+            CurveType = curve;
+            Bookends = bookends;
+            GetInput = inputFunc;
+            m = M;
+            d = D;
+            k = K;
+            p = P;
+            c = C;
+        }
+
         public float GetScore()
         {
             float x = GetNormalisedInput() / ((d != 0) ? d : 1);
