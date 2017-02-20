@@ -10,7 +10,7 @@ public abstract class GoapGoal
     public string GoalName;
     public List<GoapState> RequiredWorldState = new List<GoapState>();
 
-    public UtilityAction myUtilityAction;
+    public UtilityAction<GoapGoal> myUtilityAction;
 
     public abstract void SetupUtilityAction();
 

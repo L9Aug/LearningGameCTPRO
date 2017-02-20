@@ -5,19 +5,19 @@ using UnityEngine;
 namespace Utility
 {
     [System.Serializable]
-    public class UtilityEngine
+    public class UtilityEngine<T>
     {
-        public List<UtilityAction> Actions = new List<UtilityAction>();
+        public List<UtilityAction<T>> Actions = new List<UtilityAction<T>>();
 
-        object RunUtilityEngine()
+        public T RunUtilityEngine()
         {
             // Only run if we have actions
             if (Actions != null)
             {
-                UtilityAction highestScore = null;
+                UtilityAction<T> highestScore = null;
 
                 // Loop through every action that we have.
-                foreach (UtilityAction action in Actions)
+                foreach (UtilityAction<T> action in Actions)
                 {
                     // for each action calculate it's compensation value to even out results for actions that have a lot of considerations
                     float CompensationValue = (action.Considerations.Count > 0) ? 1 - (1 / action.Considerations.Count) : 0;
@@ -67,7 +67,7 @@ namespace Utility
                 return (highestScore != null) ? highestScore.ObjectReference : Actions[0].ObjectReference;
             }
             Debug.LogWarning("No Actions");
-            return null;
+            return default(T);
         }
     }
 

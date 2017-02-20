@@ -7,9 +7,7 @@ using GOAP;
 
 public class GoapAI : MonoBehaviour, IGoap
 {
-    StateMachine myStateMachine;
-
-    UtilityEngine myUtilityEngine;
+    StateMachine myStateMachine;    
 
     GoapAgent myAgent;
     
@@ -18,17 +16,14 @@ public class GoapAI : MonoBehaviour, IGoap
         myAgent = GetComponent<GoapAgent>();
     }
 
+    void ProgressGoap()
+    {
+        
+    }
+
     void SetupStateMachine()
     {
 
     }
-
-    void SetupUtilityEngine()
-    {
-        // add the utility actions from each goal that we have.
-        foreach(GoapGoal goal in myAgent.Goals)
-        {
-            myUtilityEngine.Actions.Add(goal.myUtilityAction);
-        }
-    }
+        
 }

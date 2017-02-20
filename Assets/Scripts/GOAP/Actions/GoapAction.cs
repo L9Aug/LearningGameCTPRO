@@ -21,10 +21,12 @@ namespace GOAP
         /// </summary>
         public void ResetAction()
         {
+            Target = null;
+            isComplete = false;
             Reset();
         }
 
-        protected abstract void Reset();
+        public abstract void Reset();
 
         public void SetTarget(GameObject target)
         {
@@ -34,19 +36,19 @@ namespace GOAP
         /// <summary>
         /// To be called when the action is first run.
         /// </summary>
-        protected abstract void BeginAction();
+        public abstract void BeginAction();
 
         /// <summary>
         /// Performs the action.
         /// </summary>
         /// <returns></returns>
-        protected abstract bool RunAction();
+        public abstract bool RunAction();
 
         /// <summary>
         /// Returns whether or not the action is finished.
         /// </summary>
         /// <returns></returns>
-        protected abstract bool HasActionFinished();
+        public abstract bool HasActionFinished();
 
     }
 

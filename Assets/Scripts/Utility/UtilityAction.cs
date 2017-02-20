@@ -6,12 +6,12 @@ namespace Utility
 {
 
     [System.Serializable]
-    public class UtilityAction
+    public class UtilityAction<T>
     {
         public List<UtilityConsideration> Considerations = new List<UtilityConsideration>();
         public float Weight;
         public float Score;
-        public object ObjectReference;
+        public T ObjectReference;
 
     }
 

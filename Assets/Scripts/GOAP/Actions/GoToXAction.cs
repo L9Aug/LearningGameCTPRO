@@ -14,12 +14,12 @@ public class GoToXAction : GoapAction {
 
     Vector3 TargetDest;
 
-    protected override void Reset()
+    public override void Reset()
     {
 
     }
 
-    protected override void BeginAction()
+    public override void BeginAction()
     {
         agent = GetComponent<NavMeshAgent>();
 
@@ -35,7 +35,7 @@ public class GoToXAction : GoapAction {
         agent.SetDestination(TargetDest);
     }
 
-    protected override bool RunAction()
+    public override bool RunAction()
     {
         if(Target == null)
         {
@@ -65,7 +65,7 @@ public class GoToXAction : GoapAction {
         return true;
     }
 
-    protected override bool HasActionFinished()
+    public override bool HasActionFinished()
     {
         return isComplete;
     }
