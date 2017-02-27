@@ -23,6 +23,7 @@ public class GoapAI : MonoBehaviour, IGoap
 
     void ProgressGoap()
     {
+        //print("run Plan");
         myAgent.RunPlan();
     }
             

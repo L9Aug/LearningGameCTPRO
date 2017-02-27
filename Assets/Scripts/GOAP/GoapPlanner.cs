@@ -8,11 +8,12 @@ namespace GOAP
     public class GoapPlanner
     {
         public List<GoapState> CurrentWorldState;
-        public List<GoapAction> AvailableActions = new List<GoapAction>();
+        public List<GoapAction> AvailableActions;
 
         public Queue<GoapAction> GoapPlan(GoapAgent agent)
         {
             CurrentWorldState = agent.CurrentWorldState;
+            AvailableActions = agent.AvailableActions;
 
             //get an action tree for the current goal
             List<GoapNode> GoalTrees = new List<GoapNode>();
@@ -28,7 +29,7 @@ namespace GOAP
             else
             {
                 // No path found...
-                Debug.Log("No GOAP path found for " + agent.gameObject.name + " Requested Goal: " + agent.CurrentGoal);
+                Debug.Log("No GOAP path found for " + agent.gameObject.name + ". Requested Goal: " + agent.CurrentGoal);
                 return null;
             }
         }
@@ -110,10 +111,16 @@ namespace GOAP
                 // loop through the actions available.
                 foreach (GoapAction action in AvailableActions)
                 {
-                    // if one of the actions that is available satisfies one or many of our actions required states then add it to be returned.
-                    if (action.SatisfiesStates.Contains(state))
+                    if (action.CanActionRun())
                     {
-                        ReturnActions.Add(action);
+                        for (int i = 0; i < action.SatisfiesStates.Count; ++i)
+                        {
+                            // if one of the actions that is available satisfies one or many of our actions required states then add it to be returned.
+                            if (action.SatisfiesStates[i].Compare(state))
+                            {
+                                ReturnActions.Add(action);
+                            }
+                        }
                     }
                 }
             }
@@ -149,9 +156,15 @@ namespace GOAP
             {
                 foreach (GoapAction action in AvailableActions)
                 {
-                    if (action.SatisfiesStates.Contains(state) && action.CanActionRun())
+                    if (action.CanActionRun())
                     {
-                        ReturnActions.Add(action);
+                        for (int i = 0; i < action.SatisfiesStates.Count; ++i)
+                        {
+                            if (GoapState.Compare(state, action.SatisfiesStates[i]))
+                            {
+                                ReturnActions.Add(action);
+                            }
+                        }
                     }
                 }
             }

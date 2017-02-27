@@ -12,7 +12,6 @@ namespace Utility
         public List<T> RunUtilityEngine()
         {
             List<UtilityAction<T>> SortedActions = new List<UtilityAction<T>>();
-
             // Only run if we have actions
             if (Actions.Count > 0)
             {
@@ -55,7 +54,7 @@ namespace Utility
 
                 // sort the list so that the highest score is at element 0
                 // multiplied by 100 as scores are in the range 0-1 before weighting values.
-                SortedActions.Sort((x, y) => (int)((x.Score - y.Score) * 100f));
+                SortedActions.Sort((x, y) => (int)((y.Score - x.Score) * 100f));
 
             }
             else

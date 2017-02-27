@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using GOAP;
-using System;
 
 public class GetPatrolNodeAction : GoapAction
 {
@@ -36,13 +35,30 @@ public class GetPatrolNodeAction : GoapAction
 
     public override bool RunAction()
     {
-
+        myGoTo.SetTarget(GetPatrolPoint());
+        EndAction();
         return true;
+    }
+
+    public override void EndAction()
+    {
+        isComplete = true;
+        myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = true;
+    }
+
+    Vector3 GetPatrolPoint()
+    {
+        return new Vector3(Random.Range(-100, 100), 0, Random.Range(-100, 100));
     }
 
     public override void Reset()
     {
         isComplete = false;
+    }
+
+    public override void StopAction()
+    {
+        
     }
 
 }

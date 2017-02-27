@@ -64,14 +64,24 @@ public class GoToXAction : GoapAction
 
         if (agent.remainingDistance <= GetInRange)
         {
-            isComplete = true;
+            EndAction();
         }
         return true;
+    }
+
+    public override void EndAction()
+    {
+        isComplete = true;
     }
 
     public override bool HasActionFinished()
     {
         return isComplete;
+    }
+
+    public override void StopAction()
+    {
+        agent.Stop();
     }
 
 }

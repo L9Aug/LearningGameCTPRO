@@ -17,11 +17,21 @@ public class GoapAgent : MonoBehaviour
 
     public UtilityEngine<GoapGoal> myUtilityEngine = new UtilityEngine<GoapGoal>();
 
+    public List<GoapAction> AvailableActions = new List<GoapAction>();
+
     public List<GoapState> CurrentWorldState = new List<GoapState>();
 
     public List<GoapGoal> Goals = new List<GoapGoal>();
 
     public Queue<GoapAction> ActionPlan = new Queue<GoapAction>();
+
+    public void Initialise()
+    {
+        // get actions
+        AvailableActions.AddRange(GetComponents<GoapAction>());
+        SetupUtilityEngine();
+        myPlanner = new GoapPlanner();
+    }
 
     public void RunPlan()
     {
@@ -32,23 +42,27 @@ public class GoapAgent : MonoBehaviour
             if (CurrentAction.HasActionFinished())
             {
                 // get next action
-                CurrentAction = ActionPlan.Dequeue();
-                if (CurrentAction == null)
-                {
-                    //get new plan
-                    GetNewPlan();
-                }
+                GetNextAction();
             }
         }
         else
         {
             // get next action
-            CurrentAction = (ActionPlan.Count > 0 ? ActionPlan.Dequeue() : null);
-            if (CurrentAction == null)
-            {
-                //get new plan
-                GetNewPlan();
-            }
+            GetNextAction();
+        }
+    }
+
+    void GetNextAction()
+    {
+        CurrentAction = (ActionPlan != null ? (ActionPlan.Count > 0 ? ActionPlan.Dequeue() : null) : null);
+        if(CurrentAction != null)
+        {
+            CurrentAction.BeginAction();
+        }
+        else
+        {
+            if(GOAPPlanController.PC != null) GOAPPlanController.PC.RequestPlan(this);
+            //GetNewPlan();
         }
     }
 
@@ -56,8 +70,12 @@ public class GoapAgent : MonoBehaviour
     {
         ClearPlan();
 
-        List<GoapGoal> orderedGoals = myUtilityEngine.RunUtilityEngine();
+        foreach(GoapAction action in AvailableActions)
+        {
+            action.ResetAction();
+        }
 
+        List<GoapGoal> orderedGoals = myUtilityEngine.RunUtilityEngine();
         if (orderedGoals.Count > 0)
         {
             bool FoundGoalPath = false;
@@ -74,12 +92,14 @@ public class GoapAgent : MonoBehaviour
                     {
                         // end the loop if no path can be found to any goal.
                         FoundGoalPath = true;
+                        print("No path to goal found");
                     }
                 }
                 else
                 {
                     // plan found
                     FoundGoalPath = true;
+                    print("Found path to goal.");
                 }
 
             }
@@ -88,9 +108,9 @@ public class GoapAgent : MonoBehaviour
 
     void ClearPlan()
     {
-        while (ActionPlan.Count > 0)
+        if (ActionPlan != null)
         {
-            Destroy(ActionPlan.Dequeue());
+            ActionPlan.Clear();
         }
     }
 

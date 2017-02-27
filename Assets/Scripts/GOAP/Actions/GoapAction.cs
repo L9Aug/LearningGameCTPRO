@@ -11,6 +11,8 @@ namespace GOAP
 
         public object Target;
 
+        public GoapAgent myAgent;
+
         public List<GoapState> SatisfiesStates = new List<GoapState>();
         public List<GoapState> RequiredStates = new List<GoapState>();
 
@@ -32,10 +34,12 @@ namespace GOAP
 
         public abstract void Reset();
 
-        public void SetTarget(GameObject target)
+        public void SetTarget(object target)
         {
             Target = target;
         }
+
+        public abstract void EndAction();
 
         /// <summary>
         /// To be called when the action is first run.
@@ -53,6 +57,8 @@ namespace GOAP
         /// </summary>
         /// <returns></returns>
         public abstract bool HasActionFinished();
+
+        public abstract void StopAction();
 
     }
 

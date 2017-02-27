@@ -18,6 +18,7 @@ public class SpawnAI : MonoBehaviour {
         // add initial goals.
         // will most likely change after neural net is in place.
         Goals.Add(new IdleGoal());
+        Goals.Add(new PatrolGoal());
 
         spawnAI();
 	}
@@ -28,6 +29,7 @@ public class SpawnAI : MonoBehaviour {
         {
             GameObject nAI = Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
             nAI.GetComponent<GoapAgent>().Goals.AddRange(Goals);
+            nAI.GetComponent<GoapAgent>().Initialise();
         }
         Debug.Log("Ai Spawned: " + NumAiToSpawn);
     }
