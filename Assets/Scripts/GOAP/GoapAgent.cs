@@ -62,7 +62,6 @@ public class GoapAgent : MonoBehaviour
         else
         {
             if(GOAPPlanController.PC != null) GOAPPlanController.PC.RequestPlan(this);
-            //GetNewPlan();
         }
     }
 
@@ -125,5 +124,12 @@ public class GoapAgent : MonoBehaviour
         }
     }
 
-}
+    public void StopAllActions()
+    {
+        foreach(GoapAction action in AvailableActions)
+        {
+            action.StopAction();
+        }
+    }
 
+}

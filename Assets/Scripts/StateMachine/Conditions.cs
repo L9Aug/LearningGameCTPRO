@@ -14,9 +14,9 @@ namespace Condition
         public delegate bool BoolParameter();
         public BoolParameter Condition;
 
-        BoolCondition() { }
+        public BoolCondition() { }
 
-        BoolCondition(BoolParameter condition)
+        public BoolCondition(BoolParameter condition)
         {
             Condition = condition;
         }

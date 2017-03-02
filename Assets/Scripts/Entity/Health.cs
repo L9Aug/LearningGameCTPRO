@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Health : MonoBehaviour
 {
     public float MaxHealth;
-    float health;
+    public float health;
 
     /// <summary>
     /// The amount of health recovered per second.
@@ -69,11 +69,10 @@ public class Health : MonoBehaviour
         if (!isRecovering)
         {
             isRecovering = true;
-            while (isRecovering && health <= MaxHealth && !hasBeenHit)
+            while (isRecovering && health < MaxHealth && !hasBeenHit)
             {
                 yield return null;
-                health += (RecoveryAmount * Time.deltaTime);
-                health = Mathf.Clamp(health, 0, MaxHealth);
+                health = Mathf.Clamp(health + (RecoveryAmount * Time.deltaTime), 0, MaxHealth);
                 CallHealthChanged(RecoveryAmount * Time.deltaTime);
             }
             isRecovering = false;

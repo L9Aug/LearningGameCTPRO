@@ -32,6 +32,16 @@ public class PlayerController : MonoBehaviour {
         LookForWeapon();
 	}
 
+    void GrenadeTest()
+    {
+        if(Input.GetButtonDown("Throw Grenade"))
+        {
+            // test grenade count
+            // throw if allowed.
+            // maybe have a grenade throw cooldown.
+        }
+    }
+
     void CheckWeapon()
     {
         if (Input.GetButton("Fire"))
@@ -62,6 +72,9 @@ public class PlayerController : MonoBehaviour {
                     CurrentWeapon.OnWeaponUnEquip();
                     CurrentWeapon.transform.SetParent(transform.parent, true);
                     CurrentWeapon.GetComponent<Rigidbody>().AddExplosionForce(5, CurrentWeapon.transform.position - (CurrentWeapon.transform.forward * 0.1f), 0, 0.5f, ForceMode.VelocityChange);
+                    CurrentWeapon.WeaponUpdates.Clear();
+                    CurrentWeapon.ReloadBeginCallback.Clear();
+                    CurrentWeapon.ReloadEndCallback.Clear();
 
                     // equip targeted weapon.
                     CurrentWeapon = hit.collider.GetComponent<BaseWeapon>();
@@ -69,6 +82,7 @@ public class PlayerController : MonoBehaviour {
                     CurrentWeapon.transform.rotation = Quaternion.identity;
                     CurrentWeapon.transform.position = CurrentWeapon.EquipLocation[0];
                     CurrentWeapon.transform.SetParent(PlayerCam.transform, false);
+                    OnWeaponPickup(CurrentWeapon);
                 }
             }
         }
