@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -16,7 +15,16 @@ public class GoToXAction : GoapAction
 
     protected override void Awake() { }
 
-    public override void Reset() { }
+    protected override void CheckWorldState() { }
+
+    public override void Reset()
+    {
+        if (agent != null)
+        {
+            agent.Resume();
+        }
+        isComplete = false;
+    }
 
     public override bool CanActionRun()
     {
@@ -26,6 +34,7 @@ public class GoToXAction : GoapAction
     public override void BeginAction()
     {
         agent = GetComponent<NavMeshAgent>();
+        agent.Resume();
 
         if(Target is Transform)
         {
@@ -66,12 +75,14 @@ public class GoToXAction : GoapAction
         {
             EndAction();
         }
+
         return true;
     }
 
     public override void EndAction()
     {
         isComplete = true;
+        StopAction();
     }
 
     public override bool HasActionFinished()
@@ -81,7 +92,10 @@ public class GoToXAction : GoapAction
 
     public override void StopAction()
     {
-        agent.Stop();
+        if (agent != null)
+        {
+            agent.Stop();
+        }
     }
 
 }

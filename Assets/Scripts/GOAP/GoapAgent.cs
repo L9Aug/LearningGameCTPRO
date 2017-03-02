@@ -25,6 +25,10 @@ public class GoapAgent : MonoBehaviour
 
     public Queue<GoapAction> ActionPlan = new Queue<GoapAction>();
 
+    public delegate void WorldStateCheck();
+
+    public List<WorldStateCheck> WorldStateChecks = new List<WorldStateCheck>();
+
     public void Initialise()
     {
         // get actions
@@ -54,6 +58,7 @@ public class GoapAgent : MonoBehaviour
 
     void GetNextAction()
     {
+        if (CurrentAction != null) CurrentAction.EndAction();
         CurrentAction = (ActionPlan != null ? (ActionPlan.Count > 0 ? ActionPlan.Dequeue() : null) : null);
         if(CurrentAction != null)
         {
@@ -75,6 +80,7 @@ public class GoapAgent : MonoBehaviour
         }
 
         List<GoapGoal> orderedGoals = myUtilityEngine.RunUtilityEngine();
+        UpdateWorldState();
         if (orderedGoals.Count > 0)
         {
             bool FoundGoalPath = false;
@@ -97,6 +103,7 @@ public class GoapAgent : MonoBehaviour
                 else
                 {
                     // plan found
+                    GetNextAction();
                     FoundGoalPath = true;
                     print("Found path to goal.");
                 }
@@ -105,8 +112,25 @@ public class GoapAgent : MonoBehaviour
         }
     }
 
-    void ClearPlan()
+    public void UpdateWorldState()
     {
+        for(int i = 0; i < WorldStateChecks.Count; ++i)
+        {
+            if(WorldStateChecks[i] != null)
+            {
+                WorldStateChecks[i]();
+            }
+            else
+            {
+                WorldStateChecks.RemoveAt(i);
+                --i;
+            }
+        }
+    }
+
+    public void ClearPlan()
+    {
+        StopAllActions();
         if (ActionPlan != null)
         {
             ActionPlan.Clear();

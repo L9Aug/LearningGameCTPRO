@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Utility;
@@ -7,7 +6,7 @@ using Utility;
 public class PatrolGoal : GoapGoal
 {
 
-    public PatrolGoal() : base()
+    public PatrolGoal(GoapAgent agent) : base(agent)
     {
         GoalName = "PatrolGoal";
 

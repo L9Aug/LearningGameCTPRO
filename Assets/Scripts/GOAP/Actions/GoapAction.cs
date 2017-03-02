@@ -18,6 +18,8 @@ namespace GOAP
 
         public float Cost = 1;
 
+        protected abstract void CheckWorldState();
+
         protected abstract void Awake();
 
         public abstract bool CanActionRun();

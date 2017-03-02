@@ -10,6 +10,7 @@ public class BaseWeapon : MonoBehaviour {
     public float Damage;
     public int ProjectilesPerShot = 1;
     public int MagazineSize;
+    public int Magazine = 0;
     public float RateOfFire;
     public float ReloadTime;
     public float MuzzleVelocity;
@@ -36,7 +37,6 @@ public class BaseWeapon : MonoBehaviour {
     public List<ReloadCallbackFunc> ReloadBeginCallback = new List<ReloadCallbackFunc>();
     public List<ReloadCallbackFunc> ReloadEndCallback = new List<ReloadCallbackFunc>();
 
-    protected int Magazine = 0;
     protected float reloadTimer = 0;
     protected float ammoRemaining = 0;
     protected float cooldownTimer = 0;
@@ -68,7 +68,7 @@ public class BaseWeapon : MonoBehaviour {
         IsEquiped = false;
     }
 
-    public virtual void Fire(GetTarget targetFunc)
+    public virtual bool Fire(GetTarget targetFunc)
     {
         if (!reloading)
         {
@@ -85,8 +85,10 @@ public class BaseWeapon : MonoBehaviour {
                         nProjectile.transform.position = Muzzle.position;
                         nProjectile.transform.LookAt(bulletEndPos);
                         nProjectile.SetUpProjectile(MuzzleVelocity, Damage);
+                        
                     }
                     FiredGun();
+                    return true;
                 }
                 else
                 {
@@ -94,6 +96,7 @@ public class BaseWeapon : MonoBehaviour {
                 }
             }
         }
+        return false;
     }
 
     protected virtual void DrawBulletPath(Vector3 StartPos, Vector3 EndPos)
@@ -123,7 +126,7 @@ public class BaseWeapon : MonoBehaviour {
 
     public virtual bool Reload()
     {
-        if (!reloading && !OnCooldown)
+        if (!reloading && !OnCooldown && Magazine != MagazineSize)
         {
             reloading = true;
             StartCoroutine(RealodTick());

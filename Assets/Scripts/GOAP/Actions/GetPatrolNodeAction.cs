@@ -9,8 +9,29 @@ public class GetPatrolNodeAction : GoapAction
 
     protected override void Awake()
     {
+        myAgent = GetComponent<GoapAgent>();
+        myAgent.WorldStateChecks.Add(CheckWorldState);
         SatisfiesStates.Add(new GoapState("Has Patrol Node", true));
         myGoTo = GetComponent<GoToPatrolNodeAction>();
+    }
+
+    protected override void CheckWorldState()
+    {
+        if(myGoTo != null)
+        {
+            if(myGoTo.Target != null)
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = true;
+            }
+            else
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = false;
+            }
+        }
+        else
+        {
+            myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = false;
+        }
     }
 
     public override bool CanActionRun()
@@ -43,7 +64,7 @@ public class GetPatrolNodeAction : GoapAction
     public override void EndAction()
     {
         isComplete = true;
-        myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = true;
+        
     }
 
     Vector3 GetPatrolPoint()
@@ -53,7 +74,7 @@ public class GetPatrolNodeAction : GoapAction
 
     public override void Reset()
     {
-        isComplete = false;
+
     }
 
     public override void StopAction()

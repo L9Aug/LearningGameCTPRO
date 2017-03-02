@@ -7,6 +7,7 @@ using Utility;
 public abstract class GoapGoal
 {
     public string GoalName;
+    public GoapAgent MyAgent;
     public List<GoapState> RequiredWorldState = new List<GoapState>();
 
     public UtilityAction<GoapGoal> myUtilityAction;
@@ -15,20 +16,23 @@ public abstract class GoapGoal
 
     public abstract void AddWorldStates(ref List<GoapState> CWS);
 
-    public GoapGoal()
+    public GoapGoal(GoapAgent agent)
     {
+        MyAgent = agent;
         GoalName = "";
         SetupUtilityAction();
     }
 
-    public GoapGoal(string name)
+    public GoapGoal(string name, GoapAgent agent)
     {
+        MyAgent = agent;
         GoalName = name;
         SetupUtilityAction();
     }
 
-    public GoapGoal(string name, List<GoapState> requiredWorldState)
+    public GoapGoal(string name, List<GoapState> requiredWorldState, GoapAgent agent)
     {
+        MyAgent = agent;
         GoalName = name;
         RequiredWorldState = requiredWorldState;
         SetupUtilityAction();

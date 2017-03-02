@@ -8,17 +8,27 @@ using GOAP;
 
 public class GoapAI : MonoBehaviour, IGoap
 {
-    StateMachine myStateMachine;    
+    public PlayerDetection myDetectionObj;
+
+    public StateMachine myStateMachine;
+
+    public BaseWeapon MyGun;
 
     GoapAgent myAgent;
 
+    public float DetectionRadius;
+
     bool isDead = false;
+    public bool isAlerted = false;
+    public bool CanAimWeapon = true;
+    public float LookAccuracy = 0.01f;
 
     void Start()
     {
         myAgent = GetComponent<GoapAgent>();
         GetComponent<Health>().HealthChangedActions.Add(OnHealthChanged);
         SetupStateMachine();
+        myDetectionObj.GetComponent<SphereCollider>().radius = DetectionRadius;
     }
 
     void Update()
@@ -50,6 +60,26 @@ public class GoapAI : MonoBehaviour, IGoap
 
     #endregion
 
+    #region Alerted State Functions
+
+    void BeginAlerted()
+    {
+        myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = true;
+        if (GOAPPlanController.PC != null) GOAPPlanController.PC.RequestPlan(myAgent);
+    }
+
+    void AlertedUpdate()
+    {
+
+    }
+
+    void EndAlerted()
+    {
+        myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = false;
+    }
+
+    #endregion
+
     #region Dead State Function
 
     #endregion
@@ -61,31 +91,37 @@ public class GoapAI : MonoBehaviour, IGoap
         return isDead;
     }
 
+    bool IsAlerted()
+    {
+        return isAlerted;
+    }
+
     #endregion
 
     void SetupStateMachine()
     {
         // Conditions
         BoolCondition IsDeadCond = new BoolCondition(IsDead);
-        //BoolCondition IsAlerted = new BoolCondition();
-        //BoolCondition IsNotAlerted = new BoolCondition();
+        BoolCondition IsAlertedCond = new BoolCondition(IsAlerted);
+        NotCondition IsNotAlertedCond = new NotCondition(IsAlertedCond);
+        
         // Transitions
         Transition Dying = new Transition("Dying", IsDeadCond);
-        //Transition AlertedTrans = new Transition("Alerted", IsAlerted);
-        //Transition UnAlerted = new Transition("UnAlerted", IsNotAlerted);
+        Transition AlertedTrans = new Transition("Alerted", IsAlertedCond);
+        Transition UnAlerted = new Transition("UnAlerted", IsNotAlertedCond);
 
         // States
         State Alive = new State("Alive",
-            new List<Transition>() { Dying, /*AlertedTrans*/ },
+            new List<Transition>() { Dying, AlertedTrans },
             new List<Action>() { },
             new List<Action>() { AliveUpdate },
             new List<Action>() { EndAlive } );
 
         State Alerted = new State("Alerted",
-            new List<Transition>() { Dying, /*UnAlerted*/ },
-            new List<Action>() { },
-            new List<Action>() { },
-            new List<Action>() { });
+            new List<Transition>() { Dying, UnAlerted },
+            new List<Action>() { BeginAlerted },
+            new List<Action>() { AlertedUpdate, AliveUpdate },
+            new List<Action>() { EndAlerted });
 
         State Dead = new State("Dead",
             null,
@@ -95,9 +131,11 @@ public class GoapAI : MonoBehaviour, IGoap
 
         // Target States
         Dying.SetTargetState(Dead);
+        AlertedTrans.SetTargetState(Alerted);
+        UnAlerted.SetTargetState(Alive);
 
         // init machine
-        myStateMachine = new StateMachine(null, Alive, Dead);
+        myStateMachine = new StateMachine(null, Alive, Dead, Alerted);
         myStateMachine.InitMachine();
     }
 

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace FSM
 {
     public delegate void Action();
-
+    
     public class StateMachine
     {
 
@@ -113,7 +113,7 @@ namespace FSM
             }
         }
     }
-
+    
     public class State
     {
         public string Name;
@@ -206,7 +206,7 @@ namespace FSM
         }
 
     }
-
+    
     public class Transition
     {
         public string Name;

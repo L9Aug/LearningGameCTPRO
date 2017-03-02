@@ -7,7 +7,7 @@ using Utility;
 public class IdleGoal : GoapGoal
 {
 
-    public IdleGoal() : base()
+    public IdleGoal(GoapAgent agent) : base(agent)
     {
         GoalName = "Idle";
     }
