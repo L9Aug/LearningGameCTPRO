@@ -66,17 +66,26 @@ public class GoapAI : MonoBehaviour, IGoap
     void SetupStateMachine()
     {
         // Conditions
-        BoolCondition IsDeadCOnd = new BoolCondition(IsDead);
-
+        BoolCondition IsDeadCond = new BoolCondition(IsDead);
+        //BoolCondition IsAlerted = new BoolCondition();
+        //BoolCondition IsNotAlerted = new BoolCondition();
         // Transitions
-        Transition Dying = new Transition("Dying", IsDeadCOnd);
+        Transition Dying = new Transition("Dying", IsDeadCond);
+        //Transition AlertedTrans = new Transition("Alerted", IsAlerted);
+        //Transition UnAlerted = new Transition("UnAlerted", IsNotAlerted);
 
         // States
         State Alive = new State("Alive",
-            new List<Transition>() { Dying },
+            new List<Transition>() { Dying, /*AlertedTrans*/ },
             new List<Action>() { },
             new List<Action>() { AliveUpdate },
             new List<Action>() { EndAlive } );
+
+        State Alerted = new State("Alerted",
+            new List<Transition>() { Dying, /*UnAlerted*/ },
+            new List<Action>() { },
+            new List<Action>() { },
+            new List<Action>() { });
 
         State Dead = new State("Dead",
             null,
