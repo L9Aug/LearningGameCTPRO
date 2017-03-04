@@ -64,7 +64,7 @@ public class SpawnAI : MonoBehaviour {
 
     Vector3 GetRandomPosition()
     {
-        Vector3 returnVec = new Vector3(Random.Range(-500, 500), 0.0f, Random.Range(-500, 500));
+        Vector3 returnVec = new Vector3(Random.Range(-100, 100), 0.0f, Random.Range(-100, 100));
 
         UnityEngine.AI.NavMeshHit hit;
 
