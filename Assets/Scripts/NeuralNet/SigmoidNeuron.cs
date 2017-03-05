@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace NeuralNet
 {
-    [System.Serializable]
+    
     public class SigmoidNeuron
     {
         public float[] Weights;
         public SigmoidNeuron[] Inputs;
         public float Bias;
-        public float Activation;
+        public float Activation;        
 
         public float NablaBias;
         public float[] NablaWeights;
@@ -53,6 +53,15 @@ namespace NeuralNet
             z = SumWI + Bias;
 
             return z;
+        }
+
+        public void ResetNablas()
+        {
+            NablaBias = 0;
+            for(int i = 0; i < NablaWeights.Length; ++i)
+            {
+                NablaWeights[i] = 0;
+            }
         }
 
     }
