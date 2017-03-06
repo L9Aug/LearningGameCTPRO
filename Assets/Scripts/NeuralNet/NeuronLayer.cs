@@ -18,5 +18,15 @@ namespace NeuralNet
                 Nodes[i] = new SigmoidNeuron(PreviousLayer);
             }
         }
+
+        public NeuronLayer(int NumNodes, string[] NeuronData, NeuronLayer PreviousLayer)
+        {
+            Nodes = new SigmoidNeuron[NumNodes];
+
+            for(int i = 0; i < NumNodes; ++i)
+            {
+                Nodes[i] = new SigmoidNeuron(NeuronData[i], PreviousLayer);
+            }
+        }
     }
 }

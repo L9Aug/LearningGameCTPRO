@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NeuralNet
 {
-    
+    [System.Serializable]
     public class SigmoidNeuron
     {
         public float[] Weights;
@@ -17,6 +17,23 @@ namespace NeuralNet
         public float Delta;
 
         public float z;
+
+        public SigmoidNeuron(string NeuronData, NeuronLayer PreviousLayer)
+        {
+            string[] DataSplit = NeuronData.Split('|');
+            string[] WeightsData = DataSplit[0].Split(',');
+
+            Bias = float.Parse(DataSplit[1]);
+
+            Weights = new float[WeightsData.Length];
+            Inputs = new SigmoidNeuron[WeightsData.Length];
+
+            for (int i = 0; i < WeightsData.Length; ++i)
+            {
+                Weights[i] = float.Parse(WeightsData[i]);
+                Inputs[i] = PreviousLayer.Nodes[i];
+            }
+        }
 
         public SigmoidNeuron(NeuronLayer PreviousLayer)
         {

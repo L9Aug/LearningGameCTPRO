@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -19,6 +20,7 @@ namespace NeuralNet
 
         public TextAsset LearningInputs;
         public TextAsset LearningOutputs;
+        public TextAsset NetLayout;
 
         public int NumTrainingCycles;
         public int TrainingBatchSize;
@@ -42,7 +44,8 @@ namespace NeuralNet
         void Start()
         {
             NNC = this;
-            SetupNet();
+            LoadNetFromFile();
+            //SetupNet();
         }
 
         void Update()
@@ -52,6 +55,8 @@ namespace NeuralNet
 
         void SetupNet()
         {
+            // if there is a pre-exsiting net layout use that. otherwise build a new net.
+
             NetLayers = new NeuronLayer[NumLayers];
 
             for (int i = 0; i < NumLayers; ++i)
@@ -299,6 +304,61 @@ namespace NeuralNet
             return null;
         }
 
+        void LoadNetFromFile()
+        {
+            string[] Neurons = NetLayout.text.Split('\n');
+
+            NetLayers = new NeuronLayer[NumLayers];
+
+            int StartCount = 0;
+
+            for(int i = 0; i < NumLayers; ++i)
+            {
+                string[] LayerNeuronData = GetNeuronRange(StartCount, (i > 0) ? LayerNeuronCounts[i] : 0, Neurons);
+
+                NetLayers[i] = new NeuronLayer(LayerNeuronCounts[i], LayerNeuronData, (i > 0) ? NetLayers[i - 1] : null);
+
+                StartCount += (i > 0) ? LayerNeuronCounts[i] : 0;
+            }
+
+            Outputs = new float[LayerNeuronCounts[NumLayers - 1]];
+        }
+
+        string[] GetNeuronRange(int Start, int End, string[] TotalData)
+        {
+            int length = End - Start;
+            string[] ReturnData = new string[length];
+
+            for(int i = Start; i < End; ++i)
+            {
+                ReturnData[i - Start] = TotalData[i];
+            }
+
+            return ReturnData;
+        }
+
+        public void SaveNetToFile()
+        {
+            string NetData = "";
+
+            for(int i = 1; i < NumLayers; ++i)
+            {
+                for(int j = 0; j < LayerNeuronCounts[i]; ++j)
+                {
+                    for(int k = 0; k < NetLayers[i].Nodes[j].Weights.Length; ++k)
+                    {
+                        NetData += NetLayers[i].Nodes[j].Weights[k].ToString();
+                        NetData += (k != NetLayers[i].Nodes[j].Weights.Length - 1) ? "," : "";
+                    }
+                    NetData += "|";
+                    NetData += NetLayers[i].Nodes[j].Bias.ToString();
+                    NetData += (j != LayerNeuronCounts[i] - 1 || i != NumLayers - 1) ? "\n" : "";
+                }
+            }
+
+            File.WriteAllText(Application.dataPath + "/NeuralNetData/NeuralNetDataLayout.txt", NetData);
+        }
+
         bool ShouldYield()
         {
             return CurrentFrameTime > 1f / TargetFrameRate;
@@ -370,6 +430,11 @@ namespace NeuralNet
             if (GUILayout.Button("Feed Forward"))
             {
                 ((NeuralNetController)target).RunFeedForward();
+            }
+
+            if (GUILayout.Button("Save Net"))
+            {
+                ((NeuralNetController)target).SaveNetToFile();
             }
         }
 
