@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace NeuralNet
 {
-    [System.Serializable]
+
     public class NeuronLayer
     {
 
@@ -25,7 +25,7 @@ namespace NeuralNet
 
             for(int i = 0; i < NumNodes; ++i)
             {
-                Nodes[i] = new SigmoidNeuron(NeuronData[i], PreviousLayer);
+                Nodes[i] = new SigmoidNeuron((NeuronData.Length > 0) ? NeuronData[i] : null, PreviousLayer);
             }
         }
     }

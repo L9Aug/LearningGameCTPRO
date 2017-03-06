@@ -33,6 +33,9 @@ namespace NeuralNet
 
         float FrameStartTime;
 
+        public delegate void FeedforwardCallBack();
+        List<FeedforwardCallBack> FeedforwardCallBacks = new List<FeedforwardCallBack>();
+
         float CurrentFrameTime
         {
             get
@@ -44,8 +47,7 @@ namespace NeuralNet
         void Start()
         {
             NNC = this;
-            LoadNetFromFile();
-            //SetupNet();
+            SetupNet();
         }
 
         void Update()
@@ -53,27 +55,34 @@ namespace NeuralNet
             FrameStartTime = Time.realtimeSinceStartup;
         }
 
-        void SetupNet()
+        public void SetupNet()
         {
             // if there is a pre-exsiting net layout use that. otherwise build a new net.
-
-            NetLayers = new NeuronLayer[NumLayers];
-
-            for (int i = 0; i < NumLayers; ++i)
+            if (NetLayout == null)
             {
-                NetLayers[i] = new NeuronLayer(LayerNeuronCounts[i], (i > 0) ? NetLayers[i - 1] : null);
-            }
+                NetLayers = new NeuronLayer[NumLayers];
 
-            Outputs = new float[LayerNeuronCounts[NumLayers - 1]];
+                for (int i = 0; i < NumLayers; ++i)
+                {
+                    NetLayers[i] = new NeuronLayer(LayerNeuronCounts[i], (i > 0) ? NetLayers[i - 1] : null);
+                }
+
+                Outputs = new float[LayerNeuronCounts[NumLayers - 1]];
+                ExpectedOutputs = new float[LayerNeuronCounts[NumLayers - 1]];
+            }
+            else
+            {
+                LoadNetFromFile();
+            }
         }
 
         public void RunFeedForward()
         {
-            StartCoroutine(FeedForward());
+            StartCoroutine(CoFeedForward());
         }
 
         // Might want to move into a co-routine as this might become very large and expensive.
-        private IEnumerator FeedForward()
+        private IEnumerator CoFeedForward()
         {
             yield return new WaitForEndOfFrame();
             // Update the Input layer with updated inputs.
@@ -113,18 +122,51 @@ namespace NeuralNet
                     yield return new WaitForEndOfFrame();
                 }
             }
+
+            for(int i = 0; i < FeedforwardCallBacks.Count; ++i)
+            {
+                if (FeedforwardCallBacks[i] != null)
+                {
+                    FeedforwardCallBacks[i]();
+                }
+            }
         }
 
-        public IEnumerator Backprop()
+        public void FeedForward()
         {
-            yield return new WaitForEndOfFrame();
-            // feed forward
-            yield return FeedForward();
+            for (int i = 0; i < LayerNeuronCounts[0]; ++i)
+            {
+                NetLayers[0].Nodes[i].Activation = Inputs[i];
+            }
 
-            if (ShouldYield())
+            // Go through each layer that isn't the input layer.
+            for (int i = 1; i < NumLayers; ++i)
+            {
+                // Go through each node in this layer and calculate it's activation value.
+                for (int j = 0; j < LayerNeuronCounts[i]; ++j)
+                {
+                    SigmoidNeuron tempNeuron = NetLayers[i].Nodes[j];
+                    tempNeuron.Activation = Sigmoid(tempNeuron.GetZ());
+                }
+            }
+
+            // Update the outputs from the output layer.
+            for (int i = 0; i < LayerNeuronCounts[NumLayers - 1]; ++i)
+            {
+                Outputs[i] = NetLayers[NumLayers - 1].Nodes[i].Activation;
+            }
+        }
+
+        public void Backprop()
+        {
+            //yield return new WaitForEndOfFrame();
+            // feed forward
+            /*yield return*/ FeedForward();
+
+            /*if (ShouldYield())
             {
                 yield return new WaitForEndOfFrame();
-            }
+            }*/
 
             // go through the output layer
             for (int i = 0; i < LayerNeuronCounts[NumLayers - 1]; ++i)
@@ -142,10 +184,10 @@ namespace NeuralNet
                     // and set it's required change property
                     tempNeuron.Inputs[j].Delta = (tempNeuron.Weights[j] * tempNeuron.Delta) * SigmoidPrime(tempNeuron.Inputs[j].z);
 
-                    if (ShouldYield())
+                    /*if (ShouldYield())
                     {
                         yield return new WaitForEndOfFrame();
-                    }
+                    }*/
                 }
             }
 
@@ -161,35 +203,35 @@ namespace NeuralNet
                         NetLayers[i].Nodes[j].NablaWeights[k] += NetLayers[i].Nodes[j].Delta * NetLayers[i].Nodes[j].Inputs[k].Activation;
                         NetLayers[i].Nodes[j].Inputs[k].Delta = (NetLayers[i].Nodes[j].Weights[k] * NetLayers[i].Nodes[j].Delta) * SigmoidPrime(NetLayers[i].Nodes[j].Inputs[k].z);
 
-                        if (ShouldYield())
+                        /*if (ShouldYield())
                         {
                             yield return new WaitForEndOfFrame();
-                        }
+                        }*/
                     }
                 }
             }
         }
 
-        IEnumerator RunMiniBatch(DataSet[] batch)
+        void RunMiniBatch(DataSet[] batch)
         {
-            yield return new WaitForEndOfFrame();
+            //yield return new WaitForEndOfFrame();
             resetNablas();
 
-            if (ShouldYield())
+           /* if (ShouldYield())
             {
                 yield return new WaitForEndOfFrame();
-            }
+            }*/
 
             for(int i = 0; i < batch.Length; ++i)
             {
                 Inputs = batch[i].Inputs;
                 ExpectedOutputs = batch[i].Outputs;
-                yield return Backprop();
+                /*yield return*/ Backprop();
 
-                if (ShouldYield())
+                /*if (ShouldYield())
                 {
                     yield return new WaitForEndOfFrame();
-                }
+                }*/
             }
 
             for (int i = 1; i < NumLayers; ++i)
@@ -202,10 +244,10 @@ namespace NeuralNet
                         NetLayers[i].Nodes[j].Weights[k] = NetLayers[i].Nodes[j].Weights[k] - ((LearningRate / batch.Length) * NetLayers[i].Nodes[j].NablaWeights[k]);
                         NetLayers[i].Nodes[j].Bias = NetLayers[i].Nodes[j].Bias - ((LearningRate / batch.Length) * NetLayers[i].Nodes[j].NablaBias);
 
-                        if (ShouldYield())
+                        /*if (ShouldYield())
                         {
                             yield return new WaitForEndOfFrame();
-                        }
+                        }*/
                     }
                 }
             }
@@ -213,12 +255,12 @@ namespace NeuralNet
 
         public void RunTrainNetwork()
         {
-            StartCoroutine(TrainNetwork());
+            TrainNetwork();
         }
 
-        private IEnumerator TrainNetwork()
+        private void TrainNetwork()
         {
-            yield return new WaitForEndOfFrame();
+            //yield return new WaitForEndOfFrame();
             // Get training data.
             DataSet[] TrainingData = GetTrainingData();
 
@@ -232,16 +274,16 @@ namespace NeuralNet
                 // loop through the mini batches
                 for (int j = 0; j < Batches.Count; ++j)
                 {
-                    yield return RunMiniBatch(Batches[j]);
+                    /*yield return*/ RunMiniBatch(Batches[j]);
                 }
 
                 // Test data stuff here.
                 print("Training Cycle " + (i + 1) + "/" + NumTrainingCycles + " Complete");
 
-                if (ShouldYield())
+                /*if (ShouldYield())
                 {
                     yield return new WaitForEndOfFrame();
-                }
+                }*/
             }
         }
 
@@ -314,7 +356,7 @@ namespace NeuralNet
 
             for(int i = 0; i < NumLayers; ++i)
             {
-                string[] LayerNeuronData = GetNeuronRange(StartCount, (i > 0) ? LayerNeuronCounts[i] : 0, Neurons);
+                string[] LayerNeuronData = GetNeuronRange(StartCount, (i > 0) ? LayerNeuronCounts[i] + StartCount : 0, Neurons);
 
                 NetLayers[i] = new NeuronLayer(LayerNeuronCounts[i], LayerNeuronData, (i > 0) ? NetLayers[i - 1] : null);
 
@@ -322,6 +364,7 @@ namespace NeuralNet
             }
 
             Outputs = new float[LayerNeuronCounts[NumLayers - 1]];
+            ExpectedOutputs = new float[LayerNeuronCounts[NumLayers - 1]];
         }
 
         string[] GetNeuronRange(int Start, int End, string[] TotalData)
@@ -422,14 +465,19 @@ namespace NeuralNet
         {
             base.OnInspectorGUI();
 
-            if(GUILayout.Button("Begin Learning"))
+            if (GUILayout.Button("Load Net"))
+            {
+                ((NeuralNetController)target).SetupNet();
+            }
+
+            if (GUILayout.Button("Begin Learning"))
             {
                 ((NeuralNetController)target).RunTrainNetwork();
             }
 
             if (GUILayout.Button("Feed Forward"))
             {
-                ((NeuralNetController)target).RunFeedForward();
+                ((NeuralNetController)target).FeedForward();
             }
 
             if (GUILayout.Button("Save Net"))

@@ -23,7 +23,7 @@ public class GoapAI : MonoBehaviour, IGoap
     public bool CanAimWeapon = true;
     public float LookAccuracy = 0.01f;
 
-    void Start()
+    public void Initialise()
     {
         myAgent = GetComponent<GoapAgent>();
         GetComponent<Health>().HealthChangedActions.Add(OnHealthChanged);
@@ -34,6 +34,11 @@ public class GoapAI : MonoBehaviour, IGoap
     void Update()
     {
         myStateMachine.SMUpdate();
+    }
+
+    public void AddWeapon(GameObject weapon)
+    {
+        // remove any current weapon and add in the new weapon.
     }
 
     void OnHealthChanged(float DeltaHealth, float CurrentHealth, float MaxHealth)
