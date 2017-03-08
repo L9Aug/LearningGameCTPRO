@@ -97,7 +97,6 @@ public class GoapAgent : MonoBehaviour
                     {
                         // end the loop if no path can be found to any goal.
                         FoundGoalPath = true;
-                        print("No path to goal found");
                     }
                 }
                 else
@@ -105,7 +104,6 @@ public class GoapAgent : MonoBehaviour
                     // plan found
                     GetNextAction();
                     FoundGoalPath = true;
-                    print("Found path to goal.");
                 }
 
             }

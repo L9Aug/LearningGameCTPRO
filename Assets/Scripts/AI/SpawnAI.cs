@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using GOAP;
 using NeuralNet;
 
-public class SpawnAI : MonoBehaviour {
+public class SpawnAI : MonoBehaviour
+{
 
     [Range(0, 100)]
     public int NumAiToSpawn = 0;
@@ -24,16 +25,16 @@ public class SpawnAI : MonoBehaviour {
 
     enum NetworkOutputNames { NumAi = 0, DetectionRadius = 1, CanAim = 2, Accuracy = 3, Goals = 4, Weapon = 5, MaxHealth  = 6 }
 
+    public List<Collider> SpawnZones = new List<Collider>();
+
 	// Use this for initialization
 	void Start ()
     {
-        // add initial goals.
-        // will most likely change after neural net is in place.
-        Goals.AddRange(new List<GoalEnum>() { GoalEnum.Idle, GoalEnum.Patrol, GoalEnum.Combat });
-        //Goals.Add(new PatrolGoal());
-
-        spawnAI();
-	}
+        if (!NeuralNetController.NNC.FeedforwardCallBacks.Contains(spawnAI))
+        {
+            NeuralNetController.NNC.FeedforwardCallBacks.Add(spawnAI);
+        }
+    }
 
     void spawnAI()
     {
@@ -64,6 +65,7 @@ public class SpawnAI : MonoBehaviour {
                 Health AIHealth = nAI.GetComponent<Health>();
                 AIHealth.MaxHealth = MaxHealth;
 
+                tempAgent.Initialise();
                 myAIComp.Initialise();
             }
 

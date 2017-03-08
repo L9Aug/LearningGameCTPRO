@@ -34,7 +34,7 @@ namespace NeuralNet
         float FrameStartTime;
 
         public delegate void FeedforwardCallBack();
-        List<FeedforwardCallBack> FeedforwardCallBacks = new List<FeedforwardCallBack>();
+        public List<FeedforwardCallBack> FeedforwardCallBacks = new List<FeedforwardCallBack>();
 
         float CurrentFrameTime
         {
