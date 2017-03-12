@@ -6,6 +6,7 @@ using GOAP;
 public class GetPatrolNodeAction : GoapAction
 {
     GoToPatrolNodeAction myGoTo;
+    List<Vector3> PatrolPoints = new List<Vector3>();
 
     protected override void Awake()
     {
@@ -13,6 +14,11 @@ public class GetPatrolNodeAction : GoapAction
         myAgent.WorldStateChecks.Add(CheckWorldState);
         SatisfiesStates.Add(new GoapState("Has Patrol Node", true));
         myGoTo = GetComponent<GoToPatrolNodeAction>();
+    }
+
+    private void Start()
+    {
+        
     }
 
     protected override void CheckWorldState()

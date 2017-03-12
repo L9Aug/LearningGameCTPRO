@@ -29,6 +29,7 @@ public class GoapAI : MonoBehaviour, IGoap
         GetComponent<Health>().HealthChangedActions.Add(OnHealthChanged);
         SetupStateMachine();
         myDetectionObj.GetComponent<SphereCollider>().radius = DetectionRadius;
+
     }
 
     void Update()

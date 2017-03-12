@@ -5,6 +5,7 @@ using GOAP;
 
 public class GoToPatrolNodeAction : GoToXAction
 {
+
     protected override void Awake()
     {
         myAgent = GetComponent<GoapAgent>();
