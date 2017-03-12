@@ -61,7 +61,7 @@ public class PlayerMetricsController : MonoBehaviour
         }
     }
 
-    public void GetNextUnits(List<Collider> SpawnArea)
+    public void GetNextUnits(List<BoxCollider> SpawnArea)
     {
         // Update inputs
         NeuralNet.NeuralNetController myNet = NeuralNet.NeuralNetController.NNC;

@@ -25,7 +25,7 @@ public class SpawnAI : MonoBehaviour
 
     enum NetworkOutputNames { NumAi = 0, DetectionRadius = 1, CanAim = 2, Accuracy = 3, Goals = 4, Weapon = 5, MaxHealth  = 6 }
 
-    public List<Collider> SpawnZones = new List<Collider>();
+    public List<BoxCollider> SpawnZones = new List<BoxCollider>();
 
 	// Use this for initialization
 	void Start ()
@@ -49,24 +49,27 @@ public class SpawnAI : MonoBehaviour
             //GameObject WeaponForAI = Weapons[Mathf.RoundToInt(Mathf.Lerp(0, Weapons.Count - 1, myNet.Outputs[(int)NetworkOutputNames.Weapon]))];
             float MaxHealth = Mathf.Lerp(50, 200, myNet.Outputs[(int)NetworkOutputNames.MaxHealth]);
 
-            for(int i = 0; i < NetworkAiToSpawn; ++i)
+            foreach (BoxCollider col in SpawnZones)
             {
-                // Get Position within Next Area.
-                GameObject nAI = Instantiate(AIPrefab, GetRandomPosition() /* to become getAreaPosition() */, Quaternion.identity, transform);
-                GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
-                AddGoals(ref tempAgent, numGoals);
+                for (int i = 0; i < NetworkAiToSpawn; ++i)
+                {
+                    // Get Position within Next Area.
+                    GameObject nAI = Instantiate(AIPrefab, GetPositionInCollider(col), Quaternion.identity, transform);
+                    GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
+                    AddGoals(ref tempAgent, numGoals);
 
-                GoapAI myAIComp = nAI.GetComponent<GoapAI>();
-                myAIComp.DetectionRadius = DetectionRadius;
-                myAIComp.CanAimWeapon = CanAim;
-                myAIComp.LookAccuracy = Accuracy;
-                //BmyAIComp.AddWeapon(WeaponForAI);
+                    GoapAI myAIComp = nAI.GetComponent<GoapAI>();
+                    myAIComp.DetectionRadius = DetectionRadius;
+                    myAIComp.CanAimWeapon = CanAim;
+                    myAIComp.LookAccuracy = Accuracy;
+                    //BmyAIComp.AddWeapon(WeaponForAI);
 
-                Health AIHealth = nAI.GetComponent<Health>();
-                AIHealth.MaxHealth = MaxHealth;
+                    Health AIHealth = nAI.GetComponent<Health>();
+                    AIHealth.MaxHealth = MaxHealth;
 
-                tempAgent.Initialise();
-                myAIComp.Initialise();
+                    tempAgent.Initialise();
+                    myAIComp.Initialise();
+                }
             }
 
         }
@@ -133,6 +136,17 @@ public class SpawnAI : MonoBehaviour
                     break;
             }
         }
+    }
+
+    Vector3 GetPositionInCollider(BoxCollider col)
+    {
+        float xPos = Random.Range(-(col.size.x/2), (col.size.x/2));
+        float zPos = Random.Range(-(col.size.z/2), col.size.z/2);
+        Vector3 RetPos = new Vector3(xPos, 0, zPos);
+        RetPos = (col.transform.rotation * RetPos);
+        RetPos += (col.center + col.transform.position);
+
+        return RetPos;
     }
 
     Vector3 GetRandomPosition()

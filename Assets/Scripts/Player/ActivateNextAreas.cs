@@ -4,9 +4,7 @@ using UnityEngine;
 
 public class ActivateNextAreas : MonoBehaviour
 {
-
-    public int CheckpointNum;
-    public List<Collider> SpawnableAreas = new List<Collider>();
+    public List<BoxCollider> SpawnableAreas = new List<BoxCollider>();
 
     bool HasBeenTriggered = false;
 
