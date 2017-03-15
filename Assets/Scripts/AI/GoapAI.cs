@@ -44,6 +44,12 @@ public class GoapAI : MonoBehaviour, IGoap
 
     void OnHealthChanged(float DeltaHealth, float CurrentHealth, float MaxHealth)
     {
+        if(DeltaHealth < 0)
+        {
+            ++PlayerMetricsController.PMC.ShotsLanded;
+            PlayerMetricsController.PMC.DamageDealt -= DeltaHealth;
+        }
+
         if(CurrentHealth <= 0)
         {
             isDead = true;

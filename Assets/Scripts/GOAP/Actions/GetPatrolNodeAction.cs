@@ -7,7 +7,8 @@ public class GetPatrolNodeAction : GoapAction
 {
     GoToPatrolNodeAction myGoTo;
     List<Vector3> PatrolPoints = new List<Vector3>();
-
+    int currentPatrolPoint = -1;
+    
     protected override void Awake()
     {
         myAgent = GetComponent<GoapAgent>();
@@ -16,9 +17,16 @@ public class GetPatrolNodeAction : GoapAction
         myGoTo = GetComponent<GoToPatrolNodeAction>();
     }
 
-    private void Start()
+    protected override void Start()
     {
+        int NumPatrolPoints = Random.Range(2, 10);
+        float PatrolRadius = 10;
         
+        for(int i  = 0; i < NumPatrolPoints; ++i)
+        {
+            PatrolPoints.Add(Vector3.Scale(Random.insideUnitSphere * PatrolRadius, new Vector3(1, 0, 1)) + transform.position);
+        }
+
     }
 
     protected override void CheckWorldState()
@@ -52,7 +60,8 @@ public class GetPatrolNodeAction : GoapAction
 
     public override void BeginAction()
     {
-        
+        ++currentPatrolPoint;
+        currentPatrolPoint = currentPatrolPoint % PatrolPoints.Count;
     }
 
     public override bool HasActionFinished()
@@ -62,7 +71,7 @@ public class GetPatrolNodeAction : GoapAction
 
     public override bool RunAction()
     {
-        myGoTo.SetTarget(GetPatrolPoint());
+        myGoTo.SetTarget(PatrolPoints[currentPatrolPoint]);
         EndAction();
         return true;
     }

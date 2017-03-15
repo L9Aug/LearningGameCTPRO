@@ -7,13 +7,16 @@ public class PlayerDetection : MonoBehaviour
     public float FOV;
     public GoapAI myAI;
 
+    float AlertedDuration = 3;
+    float AlertedTimer;
+
     public void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.layer == 10)
         {
             if(IsPlayerInFov())
             {
-                myAI.isAlerted = true;
+                BeginAlerted();
             }
         }
     }
@@ -24,16 +27,8 @@ public class PlayerDetection : MonoBehaviour
         {
             if (IsPlayerInFov())
             {
-                myAI.isAlerted = true;
+                BeginAlerted();
             }
-        }
-    }
-
-    public void OnTriggerExit(Collider other)
-    {
-        if(other.gameObject.layer == 10)
-        {
-            myAI.isAlerted = false;
         }
     }
 
@@ -46,6 +41,27 @@ public class PlayerDetection : MonoBehaviour
 
         float Angle = Vector3.Angle(MyForwards.normalized, VecToPlayer.normalized);
         return Angle <= FOV;
+    }
+
+    void BeginAlerted()
+    {
+        PlayerMetricsController.PMC.BeginCombatTimer();
+        AlertedTimer = AlertedDuration;
+        if (!myAI.isAlerted)
+        {
+            StartCoroutine(AlertedTick());
+        }
+    }
+
+    IEnumerator AlertedTick()
+    {
+        myAI.isAlerted = true;
+        while(AlertedTimer > 0)
+        {
+            yield return null;
+            AlertedTimer -= Time.deltaTime;
+        }
+        myAI.isAlerted = false;
     }
 
 }

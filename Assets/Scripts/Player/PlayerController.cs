@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
+using FSM;
+using Condition;
 
 public class PlayerController : MonoBehaviour {
 
@@ -13,9 +16,19 @@ public class PlayerController : MonoBehaviour {
     public float EquipDist;
     public float EquipRadius;
     public Text EquipText;
+    public bool IsDead = false;
+    public Camera myCam;
 
     private Camera PlayerCam;
-    
+    private StateMachine PSM;
+    private StateMachine AimStateMachine;
+
+    private Vector3 TargetPos;
+    private Vector3 PreviousPos;
+    private float targetFOV;
+    private float PreviousFOV;
+    float LerpTimer = 0;
+
     // Use this for initialization
 	void Start ()
     {
@@ -23,14 +36,65 @@ public class PlayerController : MonoBehaviour {
         PlayerCam = transform.GetComponentInChildren<Camera>();
         GetComponent<Health>().HealthChangedActions.Add(UserInterfaceController.UIC.OnHealthChanged);
         OnWeaponPickup(CurrentWeapon);
+        SetupPlayerStateMachine();
 	}
-	
-	// Update is called once per frame
-	void Update ()
+
+    private void Update()
     {
+        PSM.SMUpdate();
+    }
+
+    void BeginAlive()
+    {
+
+    }
+
+	// Update is called once per frame
+	void AliveUpdate ()
+    {
+
         CheckWeapon();
         LookForWeapon();
+        AimStateMachine.SMUpdate();
 	}
+
+    void EndAlive()
+    {
+
+    }
+
+    void BeginAim()
+    {
+        ResetAimVars();
+        TargetPos = CurrentWeapon.AimLocation;
+        targetFOV = 30;
+    }
+
+    void EndAim()
+    {
+        ResetAimVars();
+        TargetPos = CurrentWeapon.EquipLocation[0];
+        targetFOV = 60;
+    }
+
+    void ResetAimVars()
+    {
+        LerpTimer = 0;
+        PreviousPos = CurrentWeapon.transform.localPosition;
+        TargetPos = CurrentWeapon.transform.localPosition;
+        PreviousFOV = myCam.fieldOfView;
+        targetFOV = 60;
+    }
+
+    void AimUpdate()
+    {
+        if(CurrentWeapon != null)
+        {
+            CurrentWeapon.transform.localPosition = Vector3.Lerp(PreviousPos, TargetPos, LerpTimer);
+            myCam.fieldOfView = Mathf.Lerp(PreviousFOV, targetFOV, LerpTimer);
+            LerpTimer = Mathf.Clamp01(LerpTimer + (Time.deltaTime * 2));
+        }
+    }
 
     void GrenadeTest()
     {
@@ -46,12 +110,21 @@ public class PlayerController : MonoBehaviour {
     {
         if (Input.GetButton("Fire"))
         {
-            CurrentWeapon.Fire(GetTargetBulletLocation);
+            if (CurrentWeapon.Fire(GetTargetBulletLocation))
+            {
+                ++PlayerMetricsController.PMC.ShotsFired;
+                PlayerMetricsController.PMC.BeginCombatTimer();
+            }
         }
 
         if (Input.GetButton("Reload"))
         {
             CurrentWeapon.Reload();
+        }
+
+        if (Input.GetButtonDown("Aim"))
+        {
+            CurrentWeapon.isAimed = !CurrentWeapon.isAimed;
         }
     }
 
@@ -102,4 +175,76 @@ public class PlayerController : MonoBehaviour {
     {
         return PlayerCam.transform.position + (PlayerCam.transform.forward * CurrentWeapon.WeaponRange);
     }
+
+    bool IsPlayerDead()
+    {
+        return IsDead;
+    }
+
+    bool IsPlayerAiming()
+    {
+        return (CurrentWeapon != null ? CurrentWeapon.isAimed : false);
+    }
+
+    void Dying()
+    {
+        ++PlayerMetricsController.PMC.NumDeaths;
+    }
+
+    void SetupPlayerStateMachine()
+    {
+        // Conditions
+        BoolCondition IsDeadCond = new BoolCondition(IsPlayerDead);
+        NotCondition IsNotDeadCond = new NotCondition(IsDeadCond);
+
+        BoolCondition IsAimingCond = new BoolCondition(IsPlayerAiming);
+        NotCondition IsNotAimingCond = new NotCondition(IsAimingCond);
+
+        // Transitions
+        Transition Death = new Transition("Death", IsDeadCond, Dying);
+        Transition Resurection = new Transition("Resurect", IsNotDeadCond);
+
+        Transition StartAiming = new Transition("Begin Aim", IsAimingCond, BeginAim);
+        Transition EndAiming = new Transition("End Aim", IsNotAimingCond, EndAim);
+
+        // States
+        State Alive = new State("Alive",
+            new List<Transition>() { Death },
+            new List<Action>() { BeginAlive },
+            new List<Action>() { AliveUpdate },
+            new List<Action>() { EndAlive });
+
+        State Dead = new State("Dead",
+            new List<Transition>() { Resurection },
+            null,
+            null,
+            null);
+
+        State NotAiming = new State("Not Aiming",
+            new List<Transition>() { StartAiming },
+            null,
+            new List<Action>() { AimUpdate },
+            null);
+
+        State Aiming = new State("Aiming",
+            new List<Transition>() { EndAiming },
+            null,
+            new List<Action>() { AimUpdate },
+            null);
+
+        // Transition Target States
+        Death.SetTargetState(Dead);
+        Resurection.SetTargetState(Alive);
+
+        StartAiming.SetTargetState(Aiming);
+        EndAiming.SetTargetState(NotAiming);
+
+        // Create Machine
+        PSM = new StateMachine(null, Alive, Dead);
+        PSM.InitMachine();
+
+        AimStateMachine = new StateMachine(null, Aiming, NotAiming);
+        AimStateMachine.InitMachine();
+    }
+
 }

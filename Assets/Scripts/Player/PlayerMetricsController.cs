@@ -23,6 +23,10 @@ public class PlayerMetricsController : MonoBehaviour
     public int CheckpointsReached;
     public float TimeMissionStarted;
 
+    bool inCombat;
+    float CombatDuration = 3;
+    float InCombatTimer;
+
     private void Start()
     {
         PMC = this;
@@ -79,6 +83,27 @@ public class PlayerMetricsController : MonoBehaviour
         // Begin feedforward
         myNet.RunFeedForward();
 
+    }
+
+    public void BeginCombatTimer()
+    {
+        InCombatTimer = CombatDuration;
+        if (!inCombat)
+        {
+            StartCoroutine(CombatTimer());
+        }
+    }
+
+    IEnumerator CombatTimer()
+    {
+        inCombat = true;
+        while (InCombatTimer > 0)
+        {
+            yield return null;
+            InCombatTimer -= Time.deltaTime;
+            CombatDuration += Time.deltaTime;
+        }
+        inCombat = false;
     }
 
 }

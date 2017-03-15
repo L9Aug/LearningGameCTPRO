@@ -22,6 +22,8 @@ namespace GOAP
 
         protected abstract void Awake();
 
+        protected virtual void Start() { }
+
         public abstract bool CanActionRun();
 
         /// <summary>

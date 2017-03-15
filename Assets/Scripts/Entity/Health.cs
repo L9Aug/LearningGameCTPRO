@@ -49,6 +49,7 @@ public class Health : MonoBehaviour
         health -= Damage;
         // Damage goes through as a negative to indicate loss of health.
         CallHealthChanged(-Damage);
+        PlayerMetricsController.PMC.BeginCombatTimer();
         BeginRecoveryDelay();
     }
 

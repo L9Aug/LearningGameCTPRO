@@ -29,6 +29,7 @@ public class BaseWeapon : MonoBehaviour {
     /// </summary>
     [Tooltip("First Element is the location for the player.\nSecond Element is the location for the AI.")]
     public List<Vector3> EquipLocation = new List<Vector3>();
+    public Vector3 AimLocation;
 
     public delegate Vector3 GetTarget();
     public delegate void UpdateWeapon(int magazine, int magazineSize);

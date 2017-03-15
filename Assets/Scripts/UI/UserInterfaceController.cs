@@ -22,6 +22,15 @@ public class UserInterfaceController : MonoBehaviour
     public void OnHealthChanged(float Change, float Health, float MaxHealth)
     {
         HealthBarImg.fillAmount = Health / MaxHealth;
+        if (Change < 0)
+        {
+            PlayerMetricsController.PMC.DamageTaken -= Change;
+        }
+
+        if (Health <= 0)
+        {
+            PlayerController.PC.IsDead = true;
+        }
     }
 
     public void OnWeaponUpdate(int Magazine, int MagazineSize)

@@ -5,6 +5,7 @@ using UnityEngine;
 public class ActivateNextAreas : MonoBehaviour
 {
     public List<BoxCollider> SpawnableAreas = new List<BoxCollider>();
+    public bool IsFirstTrigger = false;
 
     bool HasBeenTriggered = false;
 
@@ -12,6 +13,7 @@ public class ActivateNextAreas : MonoBehaviour
     {
         if (!HasBeenTriggered)
         {
+            if (IsFirstTrigger) PlayerMetricsController.PMC.TimeMissionStarted = Time.realtimeSinceStartup;
             ++PlayerMetricsController.PMC.CheckpointsReached;
             HasBeenTriggered = true;
             PlayerMetricsController.PMC.GetNextUnits(SpawnableAreas);
