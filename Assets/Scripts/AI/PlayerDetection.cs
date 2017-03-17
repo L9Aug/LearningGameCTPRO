@@ -10,6 +10,8 @@ public class PlayerDetection : MonoBehaviour
     float AlertedDuration = 3;
     float AlertedTimer;
 
+    bool Reacting = false;
+
     public void OnTriggerEnter(Collider other)
     {
         if(other.gameObject.layer == 10)
@@ -40,11 +42,51 @@ public class PlayerDetection : MonoBehaviour
         VecToPlayer.Scale(new Vector3(1, 0, 1));
 
         float Angle = Vector3.Angle(MyForwards.normalized, VecToPlayer.normalized);
-        return Angle <= FOV;
+
+        if(Angle <= FOV)
+        {
+            Vector3 myPos = transform.position;
+            Vector3 PlayerPos = PlayerController.PC.transform.position;
+            // for some reason Unity thought that some y positions were as far as -30 when all were above 0.
+            myPos.y = 1;
+            PlayerPos.y = 1;
+
+            Ray ray = new Ray(myPos, (PlayerPos - myPos).normalized);
+            RaycastHit hit = new RaycastHit();
+            int mask = 1 << 9 | 1 << 11;
+            mask = ~mask;
+            if(Physics.Raycast(ray, out hit, GetComponent<SphereCollider>().radius, mask, QueryTriggerInteraction.Ignore))
+            {
+                return hit.collider.gameObject.tag == "Player";
+            }
+        }
+
+        return false;
     }
 
-    void BeginAlerted()
+    public void BeginAlerted()
     {
+        if (!Reacting)
+        {
+            StartCoroutine(AlertedDelay());
+        }
+        else
+        {
+            PlayerMetricsController.PMC.BeginCombatTimer();
+        }
+        
+    }
+
+    IEnumerator AlertedDelay()
+    {
+        Reacting = true;
+        float timer = myAI.ReactionTime;
+        while(timer > 0)
+        {
+            yield return null;
+            timer -= Time.deltaTime;
+        }
+
         PlayerMetricsController.PMC.BeginCombatTimer();
         AlertedTimer = AlertedDuration;
         if (!myAI.isAlerted)
@@ -62,6 +104,7 @@ public class PlayerDetection : MonoBehaviour
             AlertedTimer -= Time.deltaTime;
         }
         myAI.isAlerted = false;
+        Reacting = false;
     }
 
 }

@@ -22,6 +22,7 @@ public class GoapAI : MonoBehaviour, IGoap
     public bool isAlerted = false;
     public bool CanAimWeapon = true;
     public float LookAccuracy = 0.01f;
+    public float ReactionTime = 1;
 
     public void Initialise()
     {
@@ -29,7 +30,6 @@ public class GoapAI : MonoBehaviour, IGoap
         GetComponent<Health>().HealthChangedActions.Add(OnHealthChanged);
         SetupStateMachine();
         myDetectionObj.GetComponent<SphereCollider>().radius = DetectionRadius;
-
     }
 
     void Update()
@@ -37,9 +37,12 @@ public class GoapAI : MonoBehaviour, IGoap
         myStateMachine.SMUpdate();
     }
 
-    public void AddWeapon(GameObject weapon)
+    public void AddWeapon(BaseWeapon weapon)
     {
         // remove any current weapon and add in the new weapon.
+        Destroy(MyGun);
+        MyGun = (BaseWeapon)Instantiate(weapon);
+        MyGun.transform.SetParent(transform, false);
     }
 
     void OnHealthChanged(float DeltaHealth, float CurrentHealth, float MaxHealth)
@@ -48,6 +51,7 @@ public class GoapAI : MonoBehaviour, IGoap
         {
             ++PlayerMetricsController.PMC.ShotsLanded;
             PlayerMetricsController.PMC.DamageDealt -= DeltaHealth;
+            myDetectionObj.GetComponent<PlayerDetection>().BeginAlerted();
         }
 
         if(CurrentHealth <= 0)
@@ -76,8 +80,11 @@ public class GoapAI : MonoBehaviour, IGoap
 
     void BeginAlerted()
     {
-        myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = true;
-        if (GOAPPlanController.PC != null) GOAPPlanController.PC.RequestPlan(myAgent);
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected") != null)
+        {
+            myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = true;
+            if (GOAPPlanController.PC != null) GOAPPlanController.PC.RequestPlan(myAgent);
+        }
     }
 
     void AlertedUpdate()
@@ -87,12 +94,22 @@ public class GoapAI : MonoBehaviour, IGoap
 
     void EndAlerted()
     {
-        myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = false;
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected") != null)
+        {
+            myAgent.CurrentWorldState.Find(x => x.Name == "Player Detected").Status = false;
+        }
     }
 
     #endregion
 
     #region Dead State Function
+
+    void DyingFunc()
+    {
+        --GameManager.GM.AIRemaining;
+        GameManager.GM.UpdateAICount();
+        Destroy(gameObject);
+    }
 
     #endregion
 
@@ -118,7 +135,7 @@ public class GoapAI : MonoBehaviour, IGoap
         NotCondition IsNotAlertedCond = new NotCondition(IsAlertedCond);
         
         // Transitions
-        Transition Dying = new Transition("Dying", IsDeadCond);
+        Transition Dying = new Transition("Dying", IsDeadCond, DyingFunc);
         Transition AlertedTrans = new Transition("Alerted", IsAlertedCond);
         Transition UnAlerted = new Transition("UnAlerted", IsNotAlertedCond);
 

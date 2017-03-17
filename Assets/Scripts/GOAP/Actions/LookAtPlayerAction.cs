@@ -19,13 +19,16 @@ public class LookAtPlayerAction : GoapAction
 
     protected override void CheckWorldState()
     {
-        if (GetLookAngle() < MyAI.LookAccuracy)
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "Looking At Player") != null)
         {
-            myAgent.CurrentWorldState.Find(x => x.Name == "Looking At Player").Status = true;
-        }
-        else
-        {
-            myAgent.CurrentWorldState.Find(x => x.Name == "Looking At Player").Status = false;
+            if (GetLookAngle() < MyAI.LookAccuracy)
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "Looking At Player").Status = true;
+            }
+            else
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "Looking At Player").Status = false;
+            }
         }
     }
 

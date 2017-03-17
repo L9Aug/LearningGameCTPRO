@@ -21,7 +21,10 @@ public class GoToXAction : GoapAction
     {
         if (agent != null)
         {
-            agent.Resume();
+            if (agent.isOnNavMesh)
+            {
+                agent.Resume();
+            }
         }
         isComplete = false;
     }
@@ -94,7 +97,10 @@ public class GoToXAction : GoapAction
     {
         if (agent != null)
         {
-            agent.Stop();
+            if (agent.isOnNavMesh)
+            {
+                agent.Stop();
+            }
         }
     }
 

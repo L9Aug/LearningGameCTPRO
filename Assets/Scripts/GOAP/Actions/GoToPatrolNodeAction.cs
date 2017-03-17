@@ -16,23 +16,30 @@ public class GoToPatrolNodeAction : GoToXAction
 
     protected override void CheckWorldState()
     {
-        if (agent != null)
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node") != null)
         {
-            if (Target != null)
+            if (agent != null)
             {
-                Vector3 targetPos = Vector3.zero;
-                if (Target is Transform)
+                if (Target != null)
                 {
-                    targetPos = ((Transform)Target).position;
-                }
-                if (Target is Vector3)
-                {
-                    targetPos = ((Vector3)Target);
-                }
+                    Vector3 targetPos = Vector3.zero;
+                    if (Target is Transform)
+                    {
+                        targetPos = ((Transform)Target).position;
+                    }
+                    if (Target is Vector3)
+                    {
+                        targetPos = ((Vector3)Target);
+                    }
 
-                if(Vector3.Distance(targetPos, transform.position) < GetInRange)
-                {
-                    myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node").Status = true;
+                    if (Vector3.Distance(targetPos, transform.position) < GetInRange)
+                    {
+                        myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node").Status = true;
+                    }
+                    else
+                    {
+                        myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node").Status = false;
+                    }
                 }
                 else
                 {
@@ -43,10 +50,6 @@ public class GoToPatrolNodeAction : GoToXAction
             {
                 myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node").Status = false;
             }
-        }
-        else
-        {
-            myAgent.CurrentWorldState.Find(x => x.Name == "At Patrol Node").Status = false;
         }
     }
 

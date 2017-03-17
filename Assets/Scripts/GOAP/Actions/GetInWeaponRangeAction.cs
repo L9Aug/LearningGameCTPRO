@@ -19,16 +19,19 @@ public class GetInWeaponRangeAction : GoToXAction
 
     protected override void CheckWorldState()
     {
-        
-        float dist = Vector3.Distance(PlayerController.PC.transform.position, transform.position);
-        float distToTarget = Vector3.Distance(transform.position, GetTargetPos());
-        if (dist < MyWeapon.WeaponRange || distToTarget <= GetInRange)
+
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "In Weapon Range") != null)
         {
-            myAgent.CurrentWorldState.Find(x => x.Name == "In Weapon Range").Status = true;
-        }
-        else
-        {
-            myAgent.CurrentWorldState.Find(x => x.Name == "In Weapon Range").Status = false;
+            float dist = Vector3.Distance(PlayerController.PC.transform.position, transform.position);
+            float distToTarget = Vector3.Distance(transform.position, GetTargetPos());
+            if (dist < MyWeapon.WeaponRange || distToTarget <= GetInRange)
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "In Weapon Range").Status = true;
+            }
+            else
+            {
+                myAgent.CurrentWorldState.Find(x => x.Name == "In Weapon Range").Status = false;
+            }
         }
     }
 

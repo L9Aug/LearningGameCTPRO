@@ -44,6 +44,18 @@ public class Health : MonoBehaviour
         }
     }
 
+    public void SetHealth(float Value)
+    {
+        health = Mathf.Clamp(Value, 0, MaxHealth);
+        CallHealthChanged(Value);
+    }
+
+    public void AddHealth(float Amount)
+    {
+        health = Mathf.Clamp(health + Amount, 0, MaxHealth);
+        CallHealthChanged(Amount);
+    }
+
     public void Hit(float Damage)
     {
         health -= Damage;

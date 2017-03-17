@@ -12,26 +12,24 @@ namespace GOAP
 
         public Queue<GoapAction> GoapPlan(GoapAgent agent)
         {
-            CurrentWorldState = agent.CurrentWorldState;
-            AvailableActions = agent.AvailableActions;
-
-            //get an action tree for the current goal
-            List<GoapNode> GoalTrees = new List<GoapNode>();
-            GoalTrees.AddRange(GetGoalTree(agent.CurrentGoal));
-
-            // If there is at least one path return the fastest path, otherwise return that no path was found.
-            if (GoalTrees.Count > 0)
+            if (agent != null)
             {
-                // search all trees for the fastest path.
-                GoalTrees.Sort((x, y) => x.CumulativeCost.CompareTo(y.CumulativeCost));
-                return ProccessNodeListIntoQueue(GoalTrees[0]);
+                CurrentWorldState = agent.CurrentWorldState;
+                AvailableActions = agent.AvailableActions;
+
+                //get an action tree for the current goal
+                List<GoapNode> GoalTrees = new List<GoapNode>();
+                GoalTrees.AddRange(GetGoalTree(agent.CurrentGoal));
+
+                // If there is at least one path return the fastest path, otherwise return that no path was found.
+                if (GoalTrees.Count > 0)
+                {
+                    // search all trees for the fastest path.
+                    GoalTrees.Sort((x, y) => x.CumulativeCost.CompareTo(y.CumulativeCost));
+                    return ProccessNodeListIntoQueue(GoalTrees[0]);
+                }
             }
-            else
-            {
-                // No path found...
-                Debug.Log("No GOAP path found for " + agent.gameObject.name + ". Requested Goal: " + agent.CurrentGoal);
-                return null;
-            }
+            return null;
         }
 
         // takes the node path that is passed in and turns it into a queue of actions.

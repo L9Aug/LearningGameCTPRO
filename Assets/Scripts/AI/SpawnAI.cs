@@ -18,7 +18,7 @@ public class SpawnAI : MonoBehaviour
     public int MaxDetectionRadius;
     public float MinAccuracy;
     public float MaxAccuracy;
-    public List<GameObject> Weapons = new List<GameObject>();
+    public List<BaseWeapon> Weapons = new List<BaseWeapon>();
     public List<GoalEnum> Goals = new List<GoalEnum>();
 
     public enum GoalEnum { Idle, Patrol, Combat, Cover }
@@ -46,45 +46,31 @@ public class SpawnAI : MonoBehaviour
             bool CanAim = myNet.Outputs[(int)NetworkOutputNames.CanAim] > 0.5f;
             float Accuracy = Mathf.Lerp(MinAccuracy, MaxAccuracy, myNet.Outputs[(int)NetworkOutputNames.Accuracy]);
             int numGoals = (int)Mathf.Lerp(1, 4, myNet.Outputs[(int)NetworkOutputNames.Goals]);
-            //GameObject WeaponForAI = Weapons[Mathf.RoundToInt(Mathf.Lerp(0, Weapons.Count - 1, myNet.Outputs[(int)NetworkOutputNames.Weapon]))];
+            BaseWeapon WeaponForAI = Weapons[Mathf.RoundToInt(Mathf.Lerp(0, Weapons.Count - 1, myNet.Outputs[(int)NetworkOutputNames.Weapon]))];
             float MaxHealth = Mathf.Lerp(50, 200, myNet.Outputs[(int)NetworkOutputNames.MaxHealth]);
 
-            foreach (BoxCollider col in SpawnZones)
+            for (int i = 0; i < NetworkAiToSpawn; ++i)
             {
-                for (int i = 0; i < NetworkAiToSpawn; ++i)
-                {
-                    // Get Position within Next Area.
-                    GameObject nAI = Instantiate(AIPrefab, GetPositionInCollider(col), Quaternion.identity, transform);
-                    GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
-                    AddGoals(ref tempAgent, numGoals);
-
-                    GoapAI myAIComp = nAI.GetComponent<GoapAI>();
-                    myAIComp.DetectionRadius = DetectionRadius;
-                    myAIComp.CanAimWeapon = CanAim;
-                    myAIComp.LookAccuracy = Accuracy;
-                    //BmyAIComp.AddWeapon(WeaponForAI);
-
-                    Health AIHealth = nAI.GetComponent<Health>();
-                    AIHealth.MaxHealth = MaxHealth;
-
-                    tempAgent.Initialise();
-                    myAIComp.Initialise();
-                }
-            }
-
-        }
-        else
-        {
-            for (int i = 0; i < NumAiToSpawn; ++i)
-            {
+                // Get Position within Next Area.
                 GameObject nAI = Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
-                GoapAgent nAgent = nAI.GetComponent<GoapAgent>();
+                GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
+                AddGoals(ref tempAgent, numGoals);
 
-                // Add actions before goals
-                AddGoals(ref nAgent);
-                nAgent.Initialise();
-            }
-            Debug.Log("Ai Spawned: " + NumAiToSpawn);
+                GoapAI myAIComp = nAI.GetComponent<GoapAI>();
+                myAIComp.DetectionRadius = DetectionRadius;
+                myAIComp.CanAimWeapon = CanAim;
+                myAIComp.LookAccuracy = Accuracy;
+                myAIComp.AddWeapon(WeaponForAI);
+
+                Health AIHealth = nAI.GetComponent<Health>();
+                AIHealth.MaxHealth = MaxHealth;
+
+                tempAgent.Initialise();
+                myAIComp.Initialise();
+            }          
+
+            GameManager.GM.AIRemaining = NetworkAiToSpawn;
+            GameManager.GM.UpdateAICount();
         }
     }
 
@@ -138,20 +124,9 @@ public class SpawnAI : MonoBehaviour
         }
     }
 
-    Vector3 GetPositionInCollider(BoxCollider col)
-    {
-        float xPos = Random.Range(-(col.size.x/2), (col.size.x/2));
-        float zPos = Random.Range(-(col.size.z/2), col.size.z/2);
-        Vector3 RetPos = new Vector3(xPos, 0, zPos);
-        RetPos = (col.transform.rotation * RetPos);
-        RetPos += (col.center + col.transform.position);
-
-        return RetPos;
-    }
-
     Vector3 GetRandomPosition()
     {
-        Vector3 returnVec = new Vector3(Random.Range(-100, 100), 0.0f, Random.Range(-100, 100));
+        Vector3 returnVec = new Vector3(Random.Range(-45, 45), 0.0f, Random.Range(-45, 45));
 
         UnityEngine.AI.NavMeshHit hit;
 

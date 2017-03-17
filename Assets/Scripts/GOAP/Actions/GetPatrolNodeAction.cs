@@ -24,27 +24,30 @@ public class GetPatrolNodeAction : GoapAction
         
         for(int i  = 0; i < NumPatrolPoints; ++i)
         {
-            PatrolPoints.Add(Vector3.Scale(Random.insideUnitSphere * PatrolRadius, new Vector3(1, 0, 1)) + transform.position);
+            PatrolPoints.Add(new Vector3(Random.Range(-45f, 45f), 0, Random.Range(-45f, 45f)));
         }
 
     }
 
     protected override void CheckWorldState()
     {
-        if(myGoTo != null)
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node") != null)
         {
-            if(myGoTo.Target != null)
+            if (myGoTo != null)
             {
-                myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = true;
+                if (myGoTo.Target != null)
+                {
+                    myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = true;
+                }
+                else
+                {
+                    myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = false;
+                }
             }
             else
             {
                 myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = false;
             }
-        }
-        else
-        {
-            myAgent.CurrentWorldState.Find(x => x.Name == "Has Patrol Node").Status = false;
         }
     }
 

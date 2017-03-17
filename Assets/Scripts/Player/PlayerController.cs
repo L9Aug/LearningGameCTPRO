@@ -19,7 +19,6 @@ public class PlayerController : MonoBehaviour {
     public bool IsDead = false;
     public Camera myCam;
 
-    private Camera PlayerCam;
     private StateMachine PSM;
     private StateMachine AimStateMachine;
 
@@ -28,12 +27,10 @@ public class PlayerController : MonoBehaviour {
     private float targetFOV;
     private float PreviousFOV;
     float LerpTimer = 0;
-
-    // Use this for initialization
+    
 	void Start ()
     {
 	    PC = this;
-        PlayerCam = transform.GetComponentInChildren<Camera>();
         GetComponent<Health>().HealthChangedActions.Add(UserInterfaceController.UIC.OnHealthChanged);
         OnWeaponPickup(CurrentWeapon);
         SetupPlayerStateMachine();
@@ -48,11 +45,9 @@ public class PlayerController : MonoBehaviour {
     {
 
     }
-
-	// Update is called once per frame
+    
 	void AliveUpdate ()
     {
-
         CheckWeapon();
         LookForWeapon();
         AimStateMachine.SMUpdate();
@@ -92,7 +87,7 @@ public class PlayerController : MonoBehaviour {
         {
             CurrentWeapon.transform.localPosition = Vector3.Lerp(PreviousPos, TargetPos, LerpTimer);
             myCam.fieldOfView = Mathf.Lerp(PreviousFOV, targetFOV, LerpTimer);
-            LerpTimer = Mathf.Clamp01(LerpTimer + (Time.deltaTime * 2));
+            LerpTimer = Mathf.Clamp01(LerpTimer + (Time.deltaTime * 10));
         }
     }
 
@@ -122,15 +117,12 @@ public class PlayerController : MonoBehaviour {
             CurrentWeapon.Reload();
         }
 
-        if (Input.GetButtonDown("Aim"))
-        {
-            CurrentWeapon.isAimed = !CurrentWeapon.isAimed;
-        }
+        CurrentWeapon.isAimed = Input.GetButton("Aim");
     }
 
     void LookForWeapon()
     {
-        Ray ray = new Ray(PlayerCam.transform.position, PlayerCam.transform.forward);
+        Ray ray = new Ray(myCam.transform.position, myCam.transform.forward);
         RaycastHit hit = new RaycastHit();
         LayerMask mask = 1<<9;
         EquipText.text = "";
@@ -154,7 +146,7 @@ public class PlayerController : MonoBehaviour {
                     CurrentWeapon.OnWeaponEquip();
                     CurrentWeapon.transform.rotation = Quaternion.identity;
                     CurrentWeapon.transform.position = CurrentWeapon.EquipLocation[0];
-                    CurrentWeapon.transform.SetParent(PlayerCam.transform, false);
+                    CurrentWeapon.transform.SetParent(myCam.transform, false);
                     OnWeaponPickup(CurrentWeapon);
                 }
             }
@@ -163,17 +155,15 @@ public class PlayerController : MonoBehaviour {
 
     void OnWeaponPickup(BaseWeapon newWeapon)
     {
-        //if (CurrentWeapon != null) Destroy(CurrentWeapon.gameObject);
         CurrentWeapon = newWeapon;
         CurrentWeapon.WeaponUpdates.Add(UserInterfaceController.UIC.OnWeaponUpdate);
         CurrentWeapon.OnWeaponEquip();
         CurrentWeapon.ReloadBeginCallback.Add(UserInterfaceController.UIC.AnimateReload);
-        //CurrentWeapon.ReloadEndCallback.Add();
     }
 
     Vector3 GetTargetBulletLocation()
     {
-        return PlayerCam.transform.position + (PlayerCam.transform.forward * CurrentWeapon.WeaponRange);
+        return myCam.transform.position + (myCam.transform.forward * CurrentWeapon.WeaponRange);
     }
 
     bool IsPlayerDead()
@@ -189,6 +179,7 @@ public class PlayerController : MonoBehaviour {
     void Dying()
     {
         ++PlayerMetricsController.PMC.NumDeaths;
+        GameManager.GM.PlayerDied();
     }
 
     void SetupPlayerStateMachine()

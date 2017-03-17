@@ -18,20 +18,23 @@ public class AimAtPlayerAction : GoapAction
 
     protected override void CheckWorldState()
     {
-        if(MyWeapon != null)
+        if (myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player") != null)
         {
-            if (MyWeapon.isAimed)
+            if (MyWeapon != null)
             {
-                myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player").Status = true;
+                if (MyWeapon.isAimed)
+                {
+                    myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player").Status = true;
+                }
+                else
+                {
+                    myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player").Status = false;
+                }
             }
             else
             {
                 myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player").Status = false;
             }
-        }
-        else
-        {
-            myAgent.CurrentWorldState.Find(x => x.Name == "Aimed At Player").Status = false;
         }
     }
 

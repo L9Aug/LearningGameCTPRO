@@ -65,7 +65,7 @@ public class PlayerMetricsController : MonoBehaviour
         }
     }
 
-    public void GetNextUnits(List<BoxCollider> SpawnArea)
+    public void GetNextUnits()
     {
         // Update inputs
         NeuralNet.NeuralNetController myNet = NeuralNet.NeuralNetController.NNC;
@@ -75,10 +75,6 @@ public class PlayerMetricsController : MonoBehaviour
         myNet.Inputs[(int)NetInputLocations.DamageTakenPerSecond] = GetDamageTakenPerSecond;
         myNet.Inputs[(int)NetInputLocations.Deaths] = NumDeaths;
         myNet.Inputs[(int)NetInputLocations.ProgressionSpeed] = GetProgressionSpeed;
-
-        // inform spawner which areas to 
-        mySpawner.SpawnZones.Clear();
-        mySpawner.SpawnZones.AddRange(SpawnArea);
 
         // Begin feedforward
         myNet.RunFeedForward();
@@ -101,7 +97,7 @@ public class PlayerMetricsController : MonoBehaviour
         {
             yield return null;
             InCombatTimer -= Time.deltaTime;
-            CombatDuration += Time.deltaTime;
+            TimeInCombat += Time.deltaTime;
         }
         inCombat = false;
     }

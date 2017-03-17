@@ -123,7 +123,7 @@ namespace NeuralNet
                 }
             }
 
-            for(int i = 0; i < FeedforwardCallBacks.Count; ++i)
+            for (int i = 0; i < FeedforwardCallBacks.Count; ++i)
             {
                 if (FeedforwardCallBacks[i] != null)
                 {
@@ -161,7 +161,8 @@ namespace NeuralNet
         {
             //yield return new WaitForEndOfFrame();
             // feed forward
-            /*yield return*/ FeedForward();
+            /*yield return*/
+            FeedForward();
 
             /*if (ShouldYield())
             {
@@ -177,7 +178,7 @@ namespace NeuralNet
                 tempNeuron.NablaBias += tempNeuron.Delta;
 
                 // then go through each neuron connected to this neuron.
-                for(int j = 0; j < tempNeuron.Inputs.Length; ++j)
+                for (int j = 0; j < tempNeuron.Inputs.Length; ++j)
                 {
                     // set the change required in the weight.
                     tempNeuron.NablaWeights[j] += tempNeuron.Delta * tempNeuron.Inputs[j].Activation;
@@ -192,9 +193,9 @@ namespace NeuralNet
             }
 
             // go through the remaning layers and nodes in those layers
-            for(int i = NumLayers - 2; i > 0; --i)
+            for (int i = NumLayers - 2; i > 0; --i)
             {
-                for(int j = 0; j < LayerNeuronCounts[i]; ++j)
+                for (int j = 0; j < LayerNeuronCounts[i]; ++j)
                 {
                     NetLayers[i].Nodes[j].NablaBias += NetLayers[i].Nodes[j].Delta;
                     // for each node connected to this node set the required change in weight and it's required change property.
@@ -217,16 +218,17 @@ namespace NeuralNet
             //yield return new WaitForEndOfFrame();
             resetNablas();
 
-           /* if (ShouldYield())
-            {
-                yield return new WaitForEndOfFrame();
-            }*/
+            /* if (ShouldYield())
+             {
+                 yield return new WaitForEndOfFrame();
+             }*/
 
-            for(int i = 0; i < batch.Length; ++i)
+            for (int i = 0; i < batch.Length; ++i)
             {
                 Inputs = batch[i].Inputs;
                 ExpectedOutputs = batch[i].Outputs;
-                /*yield return*/ Backprop();
+                /*yield return*/
+                Backprop();
 
                 /*if (ShouldYield())
                 {
@@ -274,7 +276,8 @@ namespace NeuralNet
                 // loop through the mini batches
                 for (int j = 0; j < Batches.Count; ++j)
                 {
-                    /*yield return*/ RunMiniBatch(Batches[j]);
+                    /*yield return*/
+                    RunMiniBatch(Batches[j]);
                 }
 
                 // Test data stuff here.
@@ -291,9 +294,9 @@ namespace NeuralNet
         {
             List<DataSet[]> BatchList = new List<DataSet[]>();
 
-            for(int i = 0; i < Mathf.CeilToInt((float)dataSet.Length / (float)TrainingBatchSize); ++i)
+            for (int i = 0; i < Mathf.CeilToInt((float)dataSet.Length / (float)TrainingBatchSize); ++i)
             {
-                DataSet[] tempData = new DataSet[((i + 1)*TrainingBatchSize <= dataSet.Length) ? TrainingBatchSize : TrainingBatchSize - (((i + 1) * TrainingBatchSize) - dataSet.Length)];
+                DataSet[] tempData = new DataSet[((i + 1) * TrainingBatchSize <= dataSet.Length) ? TrainingBatchSize : TrainingBatchSize - (((i + 1) * TrainingBatchSize) - dataSet.Length)];
 
                 for (int j = 0; j < tempData.Length; ++j)
                 {
@@ -354,7 +357,7 @@ namespace NeuralNet
 
             int StartCount = 0;
 
-            for(int i = 0; i < NumLayers; ++i)
+            for (int i = 0; i < NumLayers; ++i)
             {
                 string[] LayerNeuronData = GetNeuronRange(StartCount, (i > 0) ? LayerNeuronCounts[i] + StartCount : 0, Neurons);
 
@@ -372,7 +375,7 @@ namespace NeuralNet
             int length = End - Start;
             string[] ReturnData = new string[length];
 
-            for(int i = Start; i < End; ++i)
+            for (int i = Start; i < End; ++i)
             {
                 ReturnData[i - Start] = TotalData[i];
             }
@@ -384,11 +387,11 @@ namespace NeuralNet
         {
             string NetData = "";
 
-            for(int i = 1; i < NumLayers; ++i)
+            for (int i = 1; i < NumLayers; ++i)
             {
-                for(int j = 0; j < LayerNeuronCounts[i]; ++j)
+                for (int j = 0; j < LayerNeuronCounts[i]; ++j)
                 {
-                    for(int k = 0; k < NetLayers[i].Nodes[j].Weights.Length; ++k)
+                    for (int k = 0; k < NetLayers[i].Nodes[j].Weights.Length; ++k)
                     {
                         NetData += NetLayers[i].Nodes[j].Weights[k].ToString();
                         NetData += (k != NetLayers[i].Nodes[j].Weights.Length - 1) ? "," : "";
@@ -410,9 +413,9 @@ namespace NeuralNet
         // if we are going for batches.
         void resetNablas()
         {
-            for(int i = 1; i < NumLayers; ++i)
+            for (int i = 1; i < NumLayers; ++i)
             {
-                for(int j = 0; j < LayerNeuronCounts[i]; ++j)
+                for (int j = 0; j < LayerNeuronCounts[i]; ++j)
                 {
                     NetLayers[i].Nodes[j].ResetNablas();
                 }
@@ -445,9 +448,13 @@ namespace NeuralNet
                 Inputs = new float[Ins.Length];
                 Outputs = new float[Outs.Length];
 
-                for(int i = 0; i < Ins.Length; ++i)
+                for (int i = 0; i < Ins.Length; ++i)
                 {
                     Inputs[i] = float.Parse(Ins[i]);
+                }
+
+                for (int i = 0; i < Outs.Length; ++i)
+                {
                     Outputs[i] = float.Parse(Outs[i]);
                 }
             }
