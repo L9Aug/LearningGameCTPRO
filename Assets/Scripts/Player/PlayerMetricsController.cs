@@ -76,9 +76,21 @@ public class PlayerMetricsController : MonoBehaviour
         myNet.Inputs[(int)NetInputLocations.Deaths] = NumDeaths;
         myNet.Inputs[(int)NetInputLocations.ProgressionSpeed] = GetProgressionSpeed;
 
+        PrintInputs();
+
         // Begin feedforward
         myNet.RunFeedForward();
 
+    }
+
+    void PrintInputs()
+    {
+        NeuralNet.NeuralNetController myNet = NeuralNet.NeuralNetController.NNC;
+
+        print(string.Format("Accurracy {0}, DPS {1}, DTPS {2}, Deaths {3}, Prog Speed {4}\n",
+            myNet.Inputs[(int)NetInputLocations.Accuracy], myNet.Inputs[(int)NetInputLocations.DamageDealtPerSec],
+            myNet.Inputs[(int)NetInputLocations.DamageTakenPerSecond], myNet.Inputs[(int)NetInputLocations.Deaths],
+            myNet.Inputs[(int)NetInputLocations.ProgressionSpeed]));
     }
 
     public void BeginCombatTimer()
