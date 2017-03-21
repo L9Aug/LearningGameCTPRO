@@ -107,7 +107,7 @@ public class PlayerController : MonoBehaviour {
         {
             if (CurrentWeapon.Fire(GetTargetBulletLocation))
             {
-                ++PlayerMetricsController.PMC.ShotsFired;
+                PlayerMetricsController.PMC.ShotsFired += CurrentWeapon.ProjectilesPerShot;
                 PlayerMetricsController.PMC.BeginCombatTimer();
             }
         }
@@ -179,6 +179,7 @@ public class PlayerController : MonoBehaviour {
     void Dying()
     {
         ++PlayerMetricsController.PMC.NumDeaths;
+        PlayerMetricsController.PMC.GetNextUnits();
         GameManager.GM.PlayerDied();
     }
 

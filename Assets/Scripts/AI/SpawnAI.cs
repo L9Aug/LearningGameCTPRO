@@ -26,6 +26,7 @@ public class SpawnAI : MonoBehaviour
     enum NetworkOutputNames { NumAi = 0, DetectionRadius = 1, CanAim = 2, Accuracy = 3, Goals = 4, Weapon = 5, MaxHealth  = 6 }
 
     public List<BoxCollider> SpawnZones = new List<BoxCollider>();
+    List<GoapAI> SpawnedAI = new List<GoapAI>();
 
 	// Use this for initialization
 	void Start ()
@@ -33,49 +34,110 @@ public class SpawnAI : MonoBehaviour
         if (!NeuralNetController.NNC.FeedforwardCallBacks.Contains(spawnAI))
         {
             NeuralNetController.NNC.FeedforwardCallBacks.Add(spawnAI);
+            NeuralNetController.NNC.FeedforwardCallBacks.Add(UpdateCurrentAI);
         }
     }
 
-    void spawnAI()
+    public void RemoveAllAI()
     {
-        if (UseNetwork)
+        for (int i = 0; i < SpawnedAI.Count; ++i)
+        {
+            if(SpawnedAI[i] != null)
+            {
+                Destroy(SpawnedAI[i].gameObject);
+            }
+            --i;
+        }
+    }
+
+    public void spawnAI()
+    {
+        if (!GameManager.GM.RoundBegin)
+        {
+            if (UseNetwork)
+            {
+                NeuralNetController myNet = NeuralNetController.NNC;
+                int NetworkAiToSpawn = Mathf.RoundToInt(Mathf.Lerp(MinAIToSpawn, MaxAIToSpawn, myNet.Outputs[(int)NetworkOutputNames.NumAi]));
+                int DetectionRadius = Mathf.RoundToInt(Mathf.Lerp(MinDetectionRadius, MaxDetectionRadius, myNet.Outputs[(int)NetworkOutputNames.DetectionRadius]));
+                bool CanAim = myNet.Outputs[(int)NetworkOutputNames.CanAim] > 0.5f;
+                float Accuracy = Mathf.Lerp(MinAccuracy, MaxAccuracy, myNet.Outputs[(int)NetworkOutputNames.Accuracy]);
+                int numGoals = Mathf.RoundToInt(Mathf.Lerp(1, 4, myNet.Outputs[(int)NetworkOutputNames.Goals]));
+                BaseWeapon WeaponForAI = Weapons[Mathf.RoundToInt(Mathf.Lerp(0, Weapons.Count - 1, myNet.Outputs[(int)NetworkOutputNames.Weapon]))];
+                float MaxHealth = Mathf.Lerp(50, 200, myNet.Outputs[(int)NetworkOutputNames.MaxHealth]);
+
+                for (int i = 0; i < NetworkAiToSpawn; ++i)
+                {
+                    // Get Position within Next Area.
+                    GameObject nAI = Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
+                    GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
+                    AddGoals(ref tempAgent, numGoals);
+
+                    GoapAI myAIComp = nAI.GetComponent<GoapAI>();
+                    myAIComp.DetectionRadius = DetectionRadius;
+                    myAIComp.CanAimWeapon = CanAim;
+                    myAIComp.LookAccuracy = Accuracy;
+                    myAIComp.AddWeapon(WeaponForAI);
+                    myAIComp.myDetectionObj.GetComponent<SphereCollider>().radius = DetectionRadius;
+
+                    Health AIHealth = nAI.GetComponent<Health>();
+                    AIHealth.MaxHealth = MaxHealth;
+
+                    SpawnedAI.Add(myAIComp);
+                    tempAgent.Initialise();
+                    myAIComp.Initialise();
+                }
+
+                GameManager.GM.AIRemaining = NetworkAiToSpawn;
+                GameManager.GM.RoundBegin = true;
+                GameManager.GM.UpdateAICount();
+            }
+        }
+    }
+
+    void UpdateCurrentAI()
+    {
+        if (GameManager.GM.RoundBegin)
         {
             NeuralNetController myNet = NeuralNetController.NNC;
-            int NetworkAiToSpawn = (int)Mathf.Lerp(MinAIToSpawn, MaxAIToSpawn, myNet.Outputs[(int)NetworkOutputNames.NumAi]);
-            int DetectionRadius = (int)Mathf.Lerp(MinDetectionRadius, MaxDetectionRadius, myNet.Outputs[(int)NetworkOutputNames.DetectionRadius]);
+            int NetworkAiToSpawn = Mathf.RoundToInt(Mathf.Lerp(MinAIToSpawn, MaxAIToSpawn, myNet.Outputs[(int)NetworkOutputNames.NumAi]));
+            int DetectionRadius = Mathf.RoundToInt(Mathf.Lerp(MinDetectionRadius, MaxDetectionRadius, myNet.Outputs[(int)NetworkOutputNames.DetectionRadius]));
             bool CanAim = myNet.Outputs[(int)NetworkOutputNames.CanAim] > 0.5f;
             float Accuracy = Mathf.Lerp(MinAccuracy, MaxAccuracy, myNet.Outputs[(int)NetworkOutputNames.Accuracy]);
-            int numGoals = (int)Mathf.Lerp(1, 4, myNet.Outputs[(int)NetworkOutputNames.Goals]);
+            int numGoals = Mathf.RoundToInt(Mathf.Lerp(1, 4, myNet.Outputs[(int)NetworkOutputNames.Goals]));
             BaseWeapon WeaponForAI = Weapons[Mathf.RoundToInt(Mathf.Lerp(0, Weapons.Count - 1, myNet.Outputs[(int)NetworkOutputNames.Weapon]))];
             float MaxHealth = Mathf.Lerp(50, 200, myNet.Outputs[(int)NetworkOutputNames.MaxHealth]);
 
-            for (int i = 0; i < NetworkAiToSpawn; ++i)
+            for(int i = 0; i < SpawnedAI.Count; ++i)
             {
-                // Get Position within Next Area.
-                GameObject nAI = Instantiate(AIPrefab, GetRandomPosition(), Quaternion.identity, transform);
-                GoapAgent tempAgent = nAI.GetComponent<GoapAgent>();
-                AddGoals(ref tempAgent, numGoals);
+                if(SpawnedAI[i] != null)
+                {
+                    SpawnedAI[i].DetectionRadius = DetectionRadius;
+                    SpawnedAI[i].CanAimWeapon = CanAim;
+                    SpawnedAI[i].LookAccuracy = Accuracy;
+                    SpawnedAI[i].AddWeapon(WeaponForAI);
+                    SpawnedAI[i].myDetectionObj.GetComponent<SphereCollider>().radius = DetectionRadius;
 
-                GoapAI myAIComp = nAI.GetComponent<GoapAI>();
-                myAIComp.DetectionRadius = DetectionRadius;
-                myAIComp.CanAimWeapon = CanAim;
-                myAIComp.LookAccuracy = Accuracy;
-                myAIComp.AddWeapon(WeaponForAI);
+                    Health AIHealth = SpawnedAI[i].GetComponent<Health>();
+                    AIHealth.MaxHealth = MaxHealth;
+                    AIHealth.SetHealth(MaxHealth);
 
-                Health AIHealth = nAI.GetComponent<Health>();
-                AIHealth.MaxHealth = MaxHealth;
+                    GoapAgent tempAgent = SpawnedAI[i].GetComponent<GoapAgent>();
+                    AddGoals(ref tempAgent, numGoals);
 
-                tempAgent.Initialise();
-                myAIComp.Initialise();
-            }          
+                }
+                else
+                {
+                    SpawnedAI.RemoveAt(i);
+                    --i;
+                }
+            }
 
-            GameManager.GM.AIRemaining = NetworkAiToSpawn;
-            GameManager.GM.UpdateAICount();
         }
     }
 
     void AddGoals(ref GoapAgent agent, int Goals)
     {
+        agent.Goals.Clear();
         for(int i = 0; i < Goals; ++i)
         {
             AddGoal(ref agent, (GoalEnum)i);

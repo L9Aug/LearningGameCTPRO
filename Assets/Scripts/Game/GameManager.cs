@@ -12,17 +12,36 @@ public class GameManager : MonoBehaviour
     public Image DeathShroud;
     public Text AIRemainingDisplay;
     public Text RoundDisplay;
+    public SpawnAI mySpawner;
     public Vector3 PlayerSpawnPos;
 
     public int AIRemaining;
     public int RoundNum = 1;
+    public bool RoundBegin = false;
 
     // Use this for initialization
     void Start()
     {
         GM = this;
-        PlayerMetricsController.PMC.GetNextUnits();
+        //PlayerMetricsController.PMC.GetNextUnits();
+        SpawnFirstWave();
         UpdateRoundNumber();
+    }
+
+    void SpawnFirstWave()
+    {
+        // set specific outputs
+        NeuralNet.NeuralNetController myNetCont = NeuralNet.NeuralNetController.NNC;
+        myNetCont.Outputs[0] = 0;
+        myNetCont.Outputs[1] = 0.5f;
+        myNetCont.Outputs[2] = 0.4f;
+        myNetCont.Outputs[3] = 0.5f;
+        myNetCont.Outputs[4] = 1;
+        myNetCont.Outputs[5] = 0;
+        myNetCont.Outputs[6] = 0.5f;
+
+        // spawn AI
+        mySpawner.spawnAI();
     }
 
     public void UpdateAICount()
@@ -33,6 +52,8 @@ public class GameManager : MonoBehaviour
         {
             if (!PlayerController.PC.IsDead) PlayerDied();
             ++RoundNum;
+            ++PlayerMetricsController.PMC.CheckpointsReached;
+            RoundBegin = false;
             UpdateRoundNumber();
         }
     }
@@ -57,12 +78,19 @@ public class GameManager : MonoBehaviour
             timer -= Time.deltaTime;
             DeathShroud.color = new Color(DeathShroud.color.r, DeathShroud.color.g, DeathShroud.color.b, Mathf.Lerp(1, 0, timer / 2f));
         }
-        DeathShroud.color = new Color(0, 0, 0, 0);
-        if (!PlayerController.PC.IsDead) PlayerMetricsController.PMC.GetNextUnits();
+        if (RoundNum <= 5)
+        {
+            DeathShroud.color = new Color(0, 0, 0, 0);
+            if (!PlayerController.PC.IsDead) PlayerMetricsController.PMC.GetNextUnits();
 
-        PlayerController.PC.transform.position = PlayerSpawnPos;
-        PlayerController.PC.GetComponent<Health>().SetHealth(PlayerController.PC.GetComponent<Health>().MaxHealth);
-        PlayerController.PC.IsDead = false;
+            PlayerController.PC.transform.position = PlayerSpawnPos;
+            PlayerController.PC.GetComponent<Health>().SetHealth(PlayerController.PC.GetComponent<Health>().MaxHealth);
+            PlayerController.PC.IsDead = false;
+        }
+        else
+        {
+            UserInterfaceController.UIC.DisplayGameOver();
+        }
     }
 
 }

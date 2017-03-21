@@ -29,7 +29,10 @@ public class OpenDoor : MonoBehaviour
 
             if (Input.GetButtonDown("Interact"))
             {
-                if (GameManager.GM.RoundNum == 0) PlayerMetricsController.PMC.TimeMissionStarted = Time.realtimeSinceStartup;
+                if (!GameManager.GM.RoundBegin)
+                {
+                    PlayerMetricsController.PMC.TimeMissionStarted = Time.realtimeSinceStartup;
+                }
                 myDoor.OpenDoor();
                 if (!AnimIsActive) StartCoroutine(RunAnim());
             }

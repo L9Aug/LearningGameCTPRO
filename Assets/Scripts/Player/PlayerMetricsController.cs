@@ -52,7 +52,7 @@ public class PlayerMetricsController : MonoBehaviour
     {
         get
         {
-            return TimeInCombat != 0 ? DamageTaken / TimeInCombat : 0;
+            return TimeInCombat != 0 ? DamageTaken / TimeInCombat : 100;
         }
     }
 
@@ -61,7 +61,7 @@ public class PlayerMetricsController : MonoBehaviour
         get
         {
             int NumChecks = CheckpointsReached >= TargetTimePerCheckpoint.Length ? TargetTimePerCheckpoint.Length - 1 : CheckpointsReached;
-            return (Time.realtimeSinceStartup - TimeMissionStarted) / TargetTimePerCheckpoint[NumChecks];
+            return TargetTimePerCheckpoint[NumChecks] / (Time.realtimeSinceStartup - TimeMissionStarted);
         }
     }
 
@@ -87,10 +87,10 @@ public class PlayerMetricsController : MonoBehaviour
     {
         NeuralNet.NeuralNetController myNet = NeuralNet.NeuralNetController.NNC;
 
-        print(string.Format("Accurracy {0}, DPS {1}, DTPS {2}, Deaths {3}, Prog Speed {4}\n",
+        print(string.Format("Accurracy {0}, DPS {1}, DTPS {2}, Deaths {3}, Prog Speed {4}, Current Time {5}\n",
             myNet.Inputs[(int)NetInputLocations.Accuracy], myNet.Inputs[(int)NetInputLocations.DamageDealtPerSec],
             myNet.Inputs[(int)NetInputLocations.DamageTakenPerSecond], myNet.Inputs[(int)NetInputLocations.Deaths],
-            myNet.Inputs[(int)NetInputLocations.ProgressionSpeed]));
+            myNet.Inputs[(int)NetInputLocations.ProgressionSpeed], (Time.realtimeSinceStartup - TimeMissionStarted)));
     }
 
     public void BeginCombatTimer()

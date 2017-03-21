@@ -32,6 +32,7 @@ public class GoapAgent : MonoBehaviour
     public void Initialise()
     {
         // get actions
+        AvailableActions.Clear();
         AvailableActions.AddRange(GetComponents<GoapAction>());
         SetupUtilityEngine();
         myPlanner = new GoapPlanner();

@@ -1,0 +1,6 @@
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\bin\Debug\OfflineNetTrainer.exe.config
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\obj\Debug\OfflineNetTrainer.csprojResolveAssemblyReference.cache
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\bin\Debug\OfflineNetTrainer.exe
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\bin\Debug\OfflineNetTrainer.pdb
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\obj\Debug\OfflineNetTrainer.exe
+C:\Users\Tristan\Desktop\FinalYearProjectLearningGame\OfflineNeuralNetTrainer\OfflineNetTrainer\OfflineNetTrainer\obj\Debug\OfflineNetTrainer.pdb
