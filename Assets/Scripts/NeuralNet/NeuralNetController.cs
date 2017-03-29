@@ -159,15 +159,7 @@ namespace NeuralNet
 
         public void Backprop()
         {
-            //yield return new WaitForEndOfFrame();
-            // feed forward
-            /*yield return*/
             FeedForward();
-
-            /*if (ShouldYield())
-            {
-                yield return new WaitForEndOfFrame();
-            }*/
 
             // go through the output layer
             for (int i = 0; i < LayerNeuronCounts[NumLayers - 1]; ++i)
@@ -184,11 +176,6 @@ namespace NeuralNet
                     tempNeuron.NablaWeights[j] += tempNeuron.Delta * tempNeuron.Inputs[j].Activation;
                     // and set it's required change property
                     tempNeuron.Inputs[j].Delta = (tempNeuron.Weights[j] * tempNeuron.Delta) * SigmoidPrime(tempNeuron.Inputs[j].z);
-
-                    /*if (ShouldYield())
-                    {
-                        yield return new WaitForEndOfFrame();
-                    }*/
                 }
             }
 
@@ -203,11 +190,6 @@ namespace NeuralNet
                     {
                         NetLayers[i].Nodes[j].NablaWeights[k] += NetLayers[i].Nodes[j].Delta * NetLayers[i].Nodes[j].Inputs[k].Activation;
                         NetLayers[i].Nodes[j].Inputs[k].Delta = (NetLayers[i].Nodes[j].Weights[k] * NetLayers[i].Nodes[j].Delta) * SigmoidPrime(NetLayers[i].Nodes[j].Inputs[k].z);
-
-                        /*if (ShouldYield())
-                        {
-                            yield return new WaitForEndOfFrame();
-                        }*/
                     }
                 }
             }
@@ -215,25 +197,13 @@ namespace NeuralNet
 
         void RunMiniBatch(DataSet[] batch)
         {
-            //yield return new WaitForEndOfFrame();
             resetNablas();
-
-            /* if (ShouldYield())
-             {
-                 yield return new WaitForEndOfFrame();
-             }*/
 
             for (int i = 0; i < batch.Length; ++i)
             {
                 Inputs = batch[i].Inputs;
                 ExpectedOutputs = batch[i].Outputs;
-                /*yield return*/
                 Backprop();
-
-                /*if (ShouldYield())
-                {
-                    yield return new WaitForEndOfFrame();
-                }*/
             }
 
             for (int i = 1; i < NumLayers; ++i)
@@ -245,11 +215,6 @@ namespace NeuralNet
                         // for each node update it's weight and bias based on the changes calculated.
                         NetLayers[i].Nodes[j].Weights[k] = NetLayers[i].Nodes[j].Weights[k] - ((LearningRate / batch.Length) * NetLayers[i].Nodes[j].NablaWeights[k]);
                         NetLayers[i].Nodes[j].Bias = NetLayers[i].Nodes[j].Bias - ((LearningRate / batch.Length) * NetLayers[i].Nodes[j].NablaBias);
-
-                        /*if (ShouldYield())
-                        {
-                            yield return new WaitForEndOfFrame();
-                        }*/
                     }
                 }
             }
@@ -262,7 +227,6 @@ namespace NeuralNet
 
         private void TrainNetwork()
         {
-            //yield return new WaitForEndOfFrame();
             // Get training data.
             DataSet[] TrainingData = GetTrainingData();
 
@@ -276,17 +240,10 @@ namespace NeuralNet
                 // loop through the mini batches
                 for (int j = 0; j < Batches.Count; ++j)
                 {
-                    /*yield return*/
                     RunMiniBatch(Batches[j]);
                 }
-
-                // Test data stuff here.
+                
                 print("Training Cycle " + (i + 1) + "/" + NumTrainingCycles + " Complete");
-
-                /*if (ShouldYield())
-                {
-                    yield return new WaitForEndOfFrame();
-                }*/
             }
         }
 
