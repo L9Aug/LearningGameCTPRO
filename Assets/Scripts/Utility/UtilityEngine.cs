@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿// core utility functionality based on work from: from http://www.gdcvault.com/play/1021848/Building-a-Better-Centaur-AI
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿// core GOAP functionality based on work from: http://www.gdcvault.com/play/1022019/Goal-Oriented-Action-Planning-Ten
+
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
