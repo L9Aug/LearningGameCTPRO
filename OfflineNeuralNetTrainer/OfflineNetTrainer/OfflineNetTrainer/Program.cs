@@ -1,4 +1,6 @@
-﻿using System;
+﻿// core neural net functionality based on work from : http://neuralnetworksanddeeplearning.com/chap1.html
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
