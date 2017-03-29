@@ -6,7 +6,7 @@ using Condition;
 using Utility;
 using GOAP;
 
-public class GoapAI : MonoBehaviour, IGoap
+public class GoapAI : MonoBehaviour
 {
     public PlayerDetection myDetectionObj;
 
